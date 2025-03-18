@@ -7,7 +7,7 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link to="/" className="text-2xl font-extrabold tracking-wide neon-text">
-          Arul Electro Mar
+          Arul Electro Mart
         </Link>
 
         {/* Navigation */}
