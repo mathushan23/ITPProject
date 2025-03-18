@@ -1,0 +1,397 @@
+/* google font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&family=VT323&display=swap');
+
+/* layout */
+:root {
+  --primary: #1aac83;
+  --error: #e7195a;
+}
+body {
+  background: #f1f1f1;
+  margin: 0;
+  font-family: "Poppins";
+}
+header {
+  background: #b3e0ff;
+}
+header .container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header a {
+  color: #333;
+  text-decoration: none;
+}
+.pages{
+  max-width: 1400px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+/* homepage */
+.home {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 100px;
+}
+.workout-details {
+  background: #fff;
+  border-radius: 4px;
+  margin: 20px auto;
+  padding: 20px;
+  position: relative;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+}
+.workout-details h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  color: var(--primary);
+}
+.workout-details p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}
+.workout-details span {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  background: #f1f1f1;
+  padding: 6px;
+  border-radius: 50%;
+  color: #333;
+}
+
+/* new workout form */
+label, input {
+  display: block;
+}
+input {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+form button {
+  background: var(--primary);
+  border: 0;
+  color: #fff;
+  padding: 10px;
+  font-family: "Poppins";
+  border-radius: 4px;
+  cursor: pointer;
+}
+div.error {
+  padding: 10px;
+  background: #ffefef;
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: 4px;
+  margin: 20px 0;
+}
+input.error {
+  border: 1px solid var(--error);
+}
+
+
+/*changing for navbar*/
+header {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: #0b2a5b;
+  padding: 8px 0; /* Reduced padding to decrease the vertical size */
+  height: 60px; /* Reduced height of navbar */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between; /* Adjust content to be spaced */
+  align-items: center; /* Center the items vertically */
+  animation: fadeInDown 0.5s ease-in-out;
+}
+
+/* Logo Styling with Neon Glow */
+.logo-text {
+  text-shadow: 0 0 8px #facc15, 0 0 12px #facc15, 0 0 20px #facc15;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Navigation Links - Responsive & Styled */
+.navTxt {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 10px 15px;
+  display: inline-block;
+  position: relative;
+  text-transform: uppercase;
+  transition: color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Gradient Hover Effect for Links */
+.navTxt:hover {
+  color: #facc15;
+  transform: translateY(-2px);
+}
+
+.navTxt::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, #facc15, #ff00ff);
+  transition: width 0.3s ease-in-out;
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navTxt:hover::after {
+  width: 100%;
+}
+
+/* Logout Button Styling */
+.logoutBtn {
+  background-color: #dc2626;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white; /* Make text white for better contrast */
+  font-size: 16px; /* Adjust font size */
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  border: none; /* Remove default button border */
+}
+
+.logoutBtn:hover {
+  background-color: #b91c1c; /* Darker red on hover */
+  transform: scale(1.05); /* Slight scale effect for hover */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Add a shadow effect on hover */
+}
+
+.logoutBtn:focus {
+  outline: none; /* Remove outline on focus for better design */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); /* Light border on focus for accessibility */
+}
+
+/* Mobile Navigation (Hamburger Menu) */
+.menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #facc15;
+  transition: transform 0.2s ease-in-out;
+}
+
+.menu-icon:hover {
+  transform: rotate(10deg);
+}
+
+/* Responsive Navbar for Mobile */
+@media (max-width: 768px) {
+  .navTxt {
+    display: block;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .logoutBtn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  nav {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 15px 0;
+    border-top: 2px solid #facc15;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  nav.active {
+    display: flex;
+  }
+
+  .menu-icon {
+    display: block;
+  }
+}
+
+
+
+
+/*Workout form csss*/
+
+/* General Form Styling */
+.create {
+  width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Input Fields */
+.create input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.create input:focus {
+  border-color: #007BFF;
+  outline: none;
+}
+
+/* Error Styling */
+.create input.error {
+  border-color: red;
+}
+
+.create .error {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Button Styling */
+.create button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create button:hover {
+  background-color: #218838;
+}
+
+/* Label Styling */
+.create label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+}
+
+/*workout details*/
+
+/* General styling for the workout details */
+.workout-details {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.workout-details:hover {
+  transform: scale(1.02);
+}
+
+/* Title styling */
+.workout-details h4 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Description styling */
+.workout-details p {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Bold the "Description" label */
+.workout-details p strong {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Time since workout was created */
+.workout-details p:last-child {
+  font-style: italic;
+  color: #888;
+  margin-top: 10px;
+}
+
+/* Button styling */
+.workout-details .material-symbols-outlined {
+  cursor: pointer;
+  color: #d9534f; /* Red for delete */
+  font-size: 24px;
+  margin-right: 20px;
+  transition: color 0.3s ease;
+}
+
+.workout-details .material-symbols-outlined:hover {
+  color: #c9302c;
+}
+
+/* Edit button styling */
+.workout-details .btn {
+  background-color: #5bc0de;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.workout-details .btn:hover {
+  background-color: #31b0d5;
+}
+
+/* Modal styling */
+.modal-content {
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal header styling */
+.modal-header {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 15px;
+}
+
+/* Modal footer styling */
+.modal-footer {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+}
