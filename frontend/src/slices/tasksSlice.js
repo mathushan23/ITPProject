@@ -46,42 +46,45 @@ export const addTaskToServer = createAsyncThunk(
 
 
 //PATCH 
+// PATCH - Update Task
 export const updateTaskInServer = createAsyncThunk(
     "tasks/updateTaskInServer",
-    async (task,{rejectWithValue}) => {
+    async (task, { rejectWithValue }) => {
         const options = {
-            method:'PATCH',
+            method: 'PATCH',
             body: JSON.stringify(task),
             headers: {
-                "Content-type":"application/json; charset=UTF-8"
+                "Content-type": "application/json; charset=UTF-8"
             }
-        }
-        const response = await fetch(BASE_URL + '/' + task.id,options)
+        };
+        const response = await fetch(BASE_URL + '/' + task._id, options);
         if (response.ok) {
-            const jsonResponse = await response.json()
-            return jsonResponse
+            const jsonResponse = await response.json();
+            return jsonResponse;
         } else {
-            return rejectWithValue({error:'Task Not Updated'})
+            return rejectWithValue({ error: 'Task Not Updated' });
         }
     }
-)
+);
+
 
 //DELETE
+
 export const deleteTaskFromServer = createAsyncThunk(
     "tasks/deleteTaskFromServer",
-    async (task,{rejectWithValue}) => {
+    async (task, { rejectWithValue }) => {
         const options = {
-           method:'DELETE',
-        }
-        const response = await fetch(BASE_URL + '/' + task.id,options)
+            method: 'DELETE',
+        };
+        const response = await fetch(BASE_URL + '/' + task._id, options);
         if (response.ok) {
-            const jsonResponse = await response.json()
-            return jsonResponse
+            return task._id;  // Return only the task ID
         } else {
-            return rejectWithValue({error:'Task Not Deleted'})
+            return rejectWithValue({ error: 'Task Not Deleted' });
         }
     }
-)
+);
+
 
 const tasksSlice = createSlice({
     name:'tasksSlice',
@@ -127,11 +130,14 @@ const tasksSlice = createSlice({
             .addCase(updateTaskInServer.pending,(state) => {
                 state.isLoading = true
             })
-            .addCase(updateTaskInServer.fulfilled,(state,action) => {
-                state.isLoading = false
-                state.error = ''
-                state.tasksList = state.tasksList.map((task) => task.id === action.payload.id ? action.payload : task )
+            .addCase(updateTaskInServer.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.error = '';
+                state.tasksList = state.tasksList.map((task) => 
+                    task._id === action.payload._id ? action.payload : task 
+                );
             })
+            
             .addCase(updateTaskInServer.rejected,(state,action) => {
                 state.error = action.payload.error
                 state.isLoading = false
@@ -139,10 +145,12 @@ const tasksSlice = createSlice({
             .addCase(deleteTaskFromServer.pending,(state) => {
                 state.isLoading = true
             })
-            .addCase(deleteTaskFromServer.fulfilled,(state,action) => {
-                state.isLoading = false
-                state.error = ''
+            .addCase(deleteTaskFromServer.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.error = '';
+                state.tasksList = state.tasksList.filter(task => task._id !== action.payload);
             })
+            
             .addCase(deleteTaskFromServer.rejected,(state,action) => {
                 state.error = action.payload.error
                 state.isLoading = false

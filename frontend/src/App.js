@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
-import Navbar from './components/Navbar';
-import AddTask from './components/AddTask';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import TasksList from './components/TasksList';
-
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import TasksList from "./components/TasksList";
+import User from './Product';
+import './image.css';
 
 
 function App() {
   return (
-    <Container>
-    <Navbar/>
-    <Row className="justify-content-md-center">
-        <Col lg="6">
-    <AddTask/>
-    <TasksList/>
-    </Col>
-    </Row>
-    </Container>
+    <Router>
+      <Navbar />
+      
+      <Routes>
+      <Route path="/abc" element={<User/>} />
+        
+      
+       
+        <Route path="/" element={<TasksList />} />
+      </Routes>
+    </Router>
   );
 }
 

@@ -5,60 +5,32 @@ import Card from 'react-bootstrap/Card';
 import { useDispatch } from "react-redux";
 import { addTaskToServer } from "../slices/tasksSlice";
 
-const AddProduct = () => {
+const AddTask = () => {
     const dispatch = useDispatch();
-    const [productId, setProductId] = useState('');
-    const [productName, setProductName] = useState('');
-    const [productCategory, setProductCategory] = useState('');
-    const [productDescription, setProductDescription] = useState('');
-    const [price, setPrice] = useState('');
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
 
-    const addProduct = (e) => {
+    const addTask = (e) => {
         e.preventDefault();
-        console.log({ productId, productName, productCategory, productDescription, price });
-        dispatch(addTaskToServer({ productId, productName, productCategory, productDescription, price }));
-        setProductId('');
-        setProductName('');
-        setProductCategory('');
-        setProductDescription('');
-        setPrice('');
+        console.log({ title, description });
+        dispatch(addTaskToServer({ title, description }));
+        setTitle('');
+        setDescription('');
     };
 
     return (
         <section className="my-5 d-flex justify-content-center">
-            <Card style={{ width: '40rem', backgroundColor: '#BBC4C6', padding: '20px', borderRadius: '10px', boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' }}>
+            <Card style={{ width: '40rem', backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px', boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' }}>
                 <Card.Body>
                     <h4 className="text-center mb-4" style={{ color: '#011F60' }}>Add New Product</h4>
                     <Form>
-                        
-
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold" style={{ color: '#011F60' }}>Product Name</Form.Label>
                             <Form.Control 
                                 type="text" 
                                 placeholder="Enter Product Name"  
-                                value={productName}
-                                onChange={(e) => setProductName(e.target.value)} 
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold" style={{ color: '#011F60' }}>Product Category</Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                placeholder="Enter Product Category"  
-                                value={productCategory}
-                                onChange={(e) => setProductCategory(e.target.value)} 
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold" style={{ color: '#011F60' }}>Price</Form.Label>
-                            <Form.Control 
-                                type="number" 
-                                placeholder="Enter Product Price"  
-                                value={price}
-                                onChange={(e) => setPrice(e.target.value)} 
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)} 
                             />
                         </Form.Group>
 
@@ -68,8 +40,8 @@ const AddProduct = () => {
                                 as="textarea" 
                                 rows={3} 
                                 placeholder="Enter Product Description" 
-                                value={productDescription}
-                                onChange={(e) => setProductDescription(e.target.value)} 
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)} 
                             />
                         </Form.Group>
 
@@ -77,7 +49,7 @@ const AddProduct = () => {
                             <Button 
                                 variant="primary" 
                                 type="submit" 
-                                onClick={(e) => addProduct(e)}
+                                onClick={(e) => addTask(e)}
                                 style={{ backgroundColor: '#011F60', borderColor: '#011F60' }}
                             >
                                 Add Product
@@ -90,4 +62,5 @@ const AddProduct = () => {
     );
 };
 
-export default AddProduct;
+export default AddTask;
+

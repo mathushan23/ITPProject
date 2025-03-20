@@ -1,0 +1,9 @@
+body{
+    background-image: url('./image6.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: flex;
+    width:flex;
+    margin:0;
+    font-family: Arial, sans-serif;
+}

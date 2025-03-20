@@ -1,41 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
+import React,{useState,useEffect} from "react";
+import { Button } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
 import MyVerticallyCenteredModal from './UpdateTask';
-import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedTask, removeTaskFromList, getTasksFromServer, deleteTaskFromServer } from '../slices/tasksSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSelectedTask, deleteTaskFromServer } from "../slices/tasksSlice";
+import { getTasksFromServer } from './../slices/tasksSlice';
+import AddTask from "./AddTask.js";
 
 const TasksList = () => {
-  const { tasksList } = useSelector((state) => state.tasks);
-  const dispatch = useDispatch();
-  const [modalShow, setModalShow] = useState(false);
-
-  useEffect(() => {
-    dispatch(getTasksFromServer());
-  }, [dispatch]);
+  const {tasksList} = useSelector((state) => state.tasks)
+  const dispatch = useDispatch()
 
   const updateTask = (task) => {
-    console.log('Update Task');
-    setModalShow(true);
-    dispatch(setSelectedTask(task));
+    console.log("update Task");
+    setModalShow(true)
+    dispatch(setSelectedTask(task))
   };
+
+  useEffect(() => {
+    dispatch(getTasksFromServer())
+  },[dispatch])
 
   const deleteTask = (task) => {
-    console.log('Delete Task');
-    dispatch(deleteTaskFromServer(task))
-      .unwrap()
-      .then(() => {
-        dispatch(removeTaskFromList(task));
-      });
-  };
+  console.log("Deleting Task:", task); // Debugging step
 
+  dispatch(deleteTaskFromServer(task))
+    .unwrap()
+    .then(() => {
+      console.log("Task Deleted Successfully");
+    })
+    .catch((error) => {
+      console.error("Error Deleting Task:", error);
+    });
+};
+
+
+  const [modalShow,setModalShow] = useState(false)
   return (
-    <section className="container my-5">
-      <h3 className="text-center mb-4" style={{ color: '#011F60' }}>Task List</h3>
-
-      <Table striped bordered hover className="shadow-lg rounded text-center">
-        <thead style={{ backgroundColor: '#011F60', color: 'white' }}>
-          <tr>
+    <>
+    <AddTask/>
+      <Table striped bordered hover>
+        <thead>
+          <tr className="text-center">
             <th>#</th>
             <th>Title</th>
             <th>Description</th>
@@ -43,35 +49,38 @@ const TasksList = () => {
           </tr>
         </thead>
         <tbody>
-          {tasksList && tasksList.map((task, index) => (
-            <tr key={task.id}>
-              <td>{index + 1}</td>
-              <td>{task.title}</td>
-              <td>{task.description}</td>
-              <td>
-                <Button
-                  variant="outline-primary"
-                  className="mx-2"
-                  onClick={() => updateTask(task)}
-                  style={{ borderColor: '#011F60', color: '#011F60' }}
-                >
-                  <i className="bi bi-pencil-square"></i>
-                </Button>
-                <Button
-                  variant="outline-danger"
-                  onClick={() => deleteTask(task)}
-                >
-                  <i className="bi bi-trash3"></i>
-                </Button>
-              </td>
-            </tr>
-          ))}
+          {
+            tasksList && tasksList.map((task,index) => {
+              return (
+                <tr className="text-center" key={task._id}>
+                <td>{index + 1}</td>
+                <td>{task.title}</td>
+                <td>{task.description}</td>
+                <td>
+                  <Button
+                    variant="primary"
+                    className="mx-3"
+                    onClick={() => updateTask(task)}
+                  >
+                    <i className="bi bi-pencil-square"></i>
+                  </Button>
+                  <Button variant="primary">
+                    <i className="bi bi-trash3" onClick={() => deleteTask(task)}></i>
+                  </Button>
+                </td>
+              </tr>
+              )
+            })
+          }
+         
         </tbody>
       </Table>
 
-      {/* Modal for updating task */}
-      <MyVerticallyCenteredModal show={modalShow} onHide={() => setModalShow(false)} />
-    </section>
+      <MyVerticallyCenteredModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+      />
+    </>
   );
 };
 

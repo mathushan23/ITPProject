@@ -8,20 +8,20 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#011F60' }}>
       <div className="container-fluid">
-        <a className="navbar-brand text-white" href="#">Arul Online Electromart</a>
+        <a className="navbar-brand text-white" href="">Arul Online Electromart</a>
         <div className="collapse navbar-collapse justify-content-center">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link text-white" href="/products">Home</a>
+              <a className="nav-link text-white" href="/ddd">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link text-white" href="/orders">Products</a>
+              <a className="nav-link text-white" href="/abc">Products</a>
             </li>
             <li className="nav-item">
               <a className="nav-link text-white" href="/inventory">Orders</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link text-white" href="/users">Inventory</a>
+              <a className="nav-link text-white" href="/usehyvy">Inventory</a>
             </li>
           </ul>
         </div>
