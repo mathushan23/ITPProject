@@ -24,31 +24,39 @@ const MyVerticallyCenteredModal = ({ show, onHide, workout }) => {
     }
   }, [workout]);
 
-  // Handle Update Task
-  const updateTask = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+  
+// Handle Update Task
+const updateTask = async (e) => {
+  e.preventDefault(); // Prevent default form submission behavior
 
-    const updatedWorkout = { title, description,price,quantity };
-
-    console.log("Updating workout:", workout._id, updatedWorkout);
-
-    const response = await fetch(`/api/workouts/${workout._id}`, {
-      method: "PUT",
-      body: JSON.stringify(updatedWorkout),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const json = await response.json();
-
-    if (!response.ok) {
-      console.error("Error updating workout:", json.error);
-      setError(json.error);
-    } else {
-      console.log("Workout updated successfully:", json);
-      dispatch({ type: "UPDATE_WORKOUT", payload: json }); // Update context
-      onHide(); // Close modal
-    }
+  const updatedWorkout = {
+    title,
+    description,
+    price,
+    quantity,
+    updatedAt: new Date().toISOString(), // Add current timestamp
   };
+
+  console.log("Updating workout:", workout._id, updatedWorkout);
+
+  const response = await fetch(`/api/workouts/${workout._id}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedWorkout),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const json = await response.json();
+
+  if (!response.ok) {
+    console.error("Error updating workout:", json.error);
+    setError(json.error);
+  } else {
+    console.log("Workout updated successfully:", json);
+    dispatch({ type: "UPDATE_WORKOUT", payload: json }); // Update context
+    onHide(); // Close modal
+  }
+};
+
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>

@@ -2,7 +2,7 @@
 import{BrowserRouter,Routes,Route}from 'react-router-dom'
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
-import WorkoutForm from './components/WorkoutForm';
+import ProductForm from './components/ProductForm';
 
 function App() {
   return (
@@ -11,6 +11,7 @@ function App() {
     <BrowserRouter>
 
     <Navbar/>
+    <p></p>
       <div className="pages">
 
         <Routes>
@@ -19,7 +20,7 @@ function App() {
               path="/"
               element={<Home/>}
               />
-        <Route path="/WorkoutForm" element={<WorkoutForm/>}/>
+        <Route path="/WorkoutForm" element={<ProductForm/>}/>
         <Route path="/Home" element={<Home/>}/>
 
           

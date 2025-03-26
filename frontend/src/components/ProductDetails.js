@@ -2,11 +2,18 @@ import { useWorkoutsContext } from "../hooks/useWorkoutsContext";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import MyVerticallyCenteredModal from "./updateTask";
 import { Button } from "react-bootstrap";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const WorkoutDetails = ({ workout }) => {
   const { dispatch } = useWorkoutsContext();
   const [modalShow, setModalShow] = useState(false);
+
+  // Alert for low stock with title
+  useEffect(() => {
+    if (workout.quantity < 5) {
+      alert(` Warning! Low stock for "${workout.title}". Only ${workout.quantity} left.`);
+    }
+  }, [workout.quantity,workout.title]); // Runs when quantity changes
 
   const deleteWorkout = async () => {
     const response = await fetch(`/api/workouts/${workout._id}`, {
@@ -45,6 +52,13 @@ const WorkoutDetails = ({ workout }) => {
         <Button onClick={() => setModalShow(true)}>
           <i className="bi bi-pencil-square"></i> Edit
         </Button>
+
+        {/* Low Stock Warning (Visible Instead of Alert) */}
+        {workout.quantity < 5 && (
+          <p style={{ color: "red", fontWeight: "bold" }}>
+             Warning: Low stock for "{workout.title}"! Only {workout.quantity} left.
+          </p>
+        )}
       </div>
 
       {/* Update Modal */}
