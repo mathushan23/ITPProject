@@ -2,13 +2,14 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
 const Navbar = () => {
   const { tasksList, error } = useSelector((state) => state.tasks);
 
   return (
     <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#011F60' }}>
       <div className="container-fluid">
-        <a className="navbar-brand text-white" href="">Arul Online Electromart</a>
+        <a className="navbar-brand text-white" href="shop">Arul Online Electromart</a>
         <div className="collapse navbar-collapse justify-content-center">
           <ul className="navbar-nav">
             <li className="nav-item">
@@ -22,6 +23,9 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <a className="nav-link text-white" href="/usehyvy">Inventory</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/Arullogin">Login</a>
             </li>
           </ul>
         </div>

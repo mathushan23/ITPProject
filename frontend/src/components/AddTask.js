@@ -9,13 +9,38 @@ const AddTask = () => {
     const dispatch = useDispatch();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [errors, setErrors] = useState({ title: '', description: '' });
+
+    const validateForm = () => {
+        let valid = true;
+        let errors = { title: '', description: '' };
+
+        if (title.trim().length < 3) {
+            errors.title = "Product name must be at least 3 characters long.";
+            valid = false;
+        } else if (/\d/.test(title)) { 
+            // Checks if title contains any numbers
+            errors.title = "Product name should not contain numbers.";
+            valid = false;
+        }
+
+        if (description.trim().length < 10) {
+            errors.description = "Product description must be at least 10 characters long.";
+            valid = false;
+        }
+
+        setErrors(errors);
+        return valid;
+    };
 
     const addTask = (e) => {
         e.preventDefault();
-        console.log({ title, description });
-        dispatch(addTaskToServer({ title, description }));
-        setTitle('');
-        setDescription('');
+        if (validateForm()) {
+            dispatch(addTaskToServer({ title, description }));
+            setTitle('');
+            setDescription('');
+            setErrors({ title: '', description: '' }); // Clear errors after successful submission
+        }
     };
 
     return (
@@ -23,15 +48,19 @@ const AddTask = () => {
             <Card style={{ width: '40rem', backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px', boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' }}>
                 <Card.Body>
                     <h4 className="text-center mb-4" style={{ color: '#011F60' }}>Add New Product</h4>
-                    <Form>
+                    <Form onSubmit={addTask}>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold" style={{ color: '#011F60' }}>Product Name</Form.Label>
                             <Form.Control 
                                 type="text" 
                                 placeholder="Enter Product Name"  
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)} 
+                                onChange={(e) => setTitle(e.target.value)}
+                                isInvalid={!!errors.title} 
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.title}
+                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -41,15 +70,18 @@ const AddTask = () => {
                                 rows={3} 
                                 placeholder="Enter Product Description" 
                                 value={description}
-                                onChange={(e) => setDescription(e.target.value)} 
+                                onChange={(e) => setDescription(e.target.value)}
+                                isInvalid={!!errors.description} 
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.description}
+                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <div className="text-end">
                             <Button 
                                 variant="primary" 
-                                type="submit" 
-                                onClick={(e) => addTask(e)}
+                                type="submit"
                                 style={{ backgroundColor: '#011F60', borderColor: '#011F60' }}
                             >
                                 Add Product
@@ -63,4 +95,3 @@ const AddTask = () => {
 };
 
 export default AddTask;
-

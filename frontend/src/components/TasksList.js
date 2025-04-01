@@ -27,10 +27,10 @@ const TasksList = () => {
   dispatch(deleteTaskFromServer(task))
     .unwrap()
     .then(() => {
-      console.log("Task Deleted Successfully");
+      console.log("Product Deleted Successfully");
     })
     .catch((error) => {
-      console.error("Error Deleting Task:", error);
+      console.error("Error Deleting Product:", error);
     });
 };
 
@@ -43,8 +43,8 @@ const TasksList = () => {
         <thead>
           <tr className="text-center">
             <th>#</th>
-            <th>Title</th>
-            <th>Description</th>
+            <th>Product Name</th>
+            <th>Product Description</th>
             <th>Actions</th>
           </tr>
         </thead>

@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import TasksList from "./components/TasksList";
 import User from './Product';
 import './image.css';
+import Home from "./Home";
 
 
 function App() {
@@ -14,7 +15,8 @@ function App() {
       <Route path="/abc" element={<User/>} />
         
       
-       
+      <Route path="/ddd" element={<Home />} />
+
         <Route path="/" element={<TasksList />} />
       </Routes>
     </Router>
