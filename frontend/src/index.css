@@ -242,3 +242,32 @@ css*/
 }
 
 
+/*button colors edit and delete*/
+
+/* Edit Button (Green) */
+.edit-btn {
+  background-color: green !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  border-radius: 5px !important;
+  transition: 0.3s ease-in-out;
+}
+
+.edit-btn:hover {
+  background-color: darkgreen !important;
+}
+
+/* Delete Button (Red) */
+.delete-btn {
+  background-color: red !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  border-radius: 5px !important;
+  transition: 0.3s ease-in-out;
+}
+
+.delete-btn:hover {
+  background-color: darkred !important;
+}

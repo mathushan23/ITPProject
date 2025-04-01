@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import {useDispatch} from 'react-redux';
 import { updateTaskInServer } from './../slices/tasksSlice';
 
+
 const MyVerticallyCenteredModal = (props) => {
   const { selectedTask } = useSelector((state) => state.tasks);
 
