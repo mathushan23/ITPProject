@@ -1,77 +1,85 @@
+
+
 const express = require('express');
-const Order = require('../models/order'); // Ensure your Order model is correctly imported
 const router = express.Router();
+const Order = require('../models/order');
 
-// Create Order
-router.post('/', async (req, res) => {
-  try {
-    const { customerName, product, quantity, NIC, AccountNumber, PhoneNumber,Address, Email, Amount } = req.body;
-
-    // Validate required fields
-//if (!customerName || !product || !quantity || !NIC || !AccountNumber ||  !Address || !Email || !Amount) {
-      //return res.status(400).json({ message: 'All fields are required' });
-   // }
-
-    const order = new Order({ customerName, product, quantity, NIC, AccountNumber, PhoneNumber,Address, Email, Amount });
-    await order.save();
-
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Get all orders for the customer
+// Get all orders
 router.get('/', async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-// Cancel Order (Soft Delete: Change status to 'Canceled')
+// Create a new order
+router.post('/', async (req, res) => {
+  const { customerName, product, quantity, NIC,image,  PhoneNumber, Address, Email, Amount } = req.body;
+  const order = new Order({
+    customerName,
+    product,
+    quantity,
+    NIC,
+    image,
+
+    PhoneNumber,
+    Address,
+    Email,
+    Amount
+  });
+  
+  try {
+    const newOrder = await order.save();
+    res.status(201).json(newOrder);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update an existing order
+router.put('/:id', async (req, res) => {
+  const { customerName, product, quantity, NIC,image, PhoneNumber, Address, Email, Amount, status } = req.body;
+  try {
+    if(!status || !['Pending','Shipped','Completed'].includes(status)){
+      return res.status(400).json({message:'Invalid status'});
+    }
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    order.customerName = customerName;
+    order.product = product;
+    order.quantity = quantity;
+    order.NIC = NIC;
+    order.image = image;
+   
+    order.PhoneNumber = PhoneNumber;
+    order.Address = Address;
+    order.Email = Email;
+    order.Amount = Amount;
+    order.status = status;
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   try {
-    // Find the order by ID
-    const order = await Order.findById(req.params.id);
-
+    const order = await Order.findByIdAndDelete(req.params.id);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-
-    // Soft delete: update the status to 'Canceled'
-    order.status = 'Canceled';
-    await order.save();
-
-    res.json({ message: 'Order canceled', order });
+    res.json({ message: 'Order canceled by Customer' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-// Update Order Status (PUT request to /api/orders/:id)
-router.put('/:id', async (req, res) => {
-  const { status } = req.body;
 
-  try {
-    if (!status || !['Pending', 'Shipped', 'Completed'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
 
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    order.status = status;
-    await order.save();
-
-    res.status(200).json(order);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
 
 module.exports = router;

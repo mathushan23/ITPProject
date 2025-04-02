@@ -1,8 +1,11 @@
 const express = require('express');
+
 const Order = require('../models/order');
+const Admin = require('../models/admin');
+
 const router = express.Router();
 
-// Get all orders (for admin use)
+
 router.get('/', async (req, res) => {
   try {
     const orders = await Order.find();
@@ -12,7 +15,35 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Admin cancels an order
+router.post('/', async (req, res) => {
+  try {
+    const { orderId, imageDetailsId, action, adminName } = req.body;
+
+    if (!isValidObjectId(orderId)) {
+      return res.status(400).json({ error: 'Invalid Order ID' });
+    }
+
+    if (!isValidObjectId(imageDetailsId)) {
+      return res.status(400).json({ error: 'Invalid ImageDetails ID' });
+    }
+
+    const newAdminAction = new Admin({
+      orderId: mongoose.Types.ObjectId(orderId),
+      imageDetailsId: mongoose.Types.ObjectId(imageDetailsId),
+      action,
+      adminName,
+    });
+
+    const savedAdminAction = await newAdminAction.save();
+    res.status(201).json(savedAdminAction);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+
+
+
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
@@ -23,7 +54,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Admin updates order status
+
 router.put('/:id', async (req, res) => {
   try {
     const { status } = req.body;

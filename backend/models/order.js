@@ -9,36 +9,45 @@ const orderSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  
   quantity: { 
     type: Number, 
-    required: true 
+    required: true,
+    min: [1, 'Quantity must be at least 1'], 
+    max: [1000, 'Quantity cannot exceed 1000'], 
+    validate: {
+      validator: function(value) {
+        return Number.isInteger(value); 
+      },
+      message: 'Quantity must be an integer.'
+    }
   },
   NIC: { 
-    type: String, 
-    required: true 
+    type: Number, 
+    required: true,
+    match: /^[0-9]{12}$/,  // Regex for 9 digits NIC number (adjust as necessary)
+    message: 'NIC must be a 12-digit number.',  // Custom error message
   },
-  AccountNumber: { 
-    type: String, 
-    required: true 
-  },
-
+ 
   PhoneNumber: { 
     type: String, 
     required: true,
-    match: /^[0-9]{10}$/,  // Assuming phone numbers are numeric and 10 digits long. Adjust the regex as needed
+    match: /^[0-9]{10}$/, 
   },
   Address: {
     type: String,
-    required: [true, 'Address is required'] // Address is now required
+    required: [true, 'Address is required'], 
+    minlength: 10,  
   },
   Email: { 
     type: String, 
     required: true, 
-    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/  // Email regex validation
+    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,  
   },
   Amount: { 
     type: Number, 
-    required: true 
+    required: true,
+    min: 1, 
   },
   
 
@@ -48,4 +57,4 @@ const orderSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports =  mongoose.model('Order', orderSchema);

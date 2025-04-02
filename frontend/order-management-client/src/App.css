@@ -1,114 +1,319 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
 
 
-table,th, td {
- 
-  border: 1px solid black;
-  border-collapse: collapse;
-  border-color: #96D4D4;
-  width:15%;
 
- 
 
-}
-th, td {
-  padding-top: 10px;
-  padding-bottom: 20px;
-  padding-left: 30px;
-  padding-right: 40px;
-}
-input[type=text],input[type="number"] select {
-  width: 30%;
+
+/* General Button Styles */
+button {
+  background-color: #43488b; /* Green */
+  color: white;
+  border: none;
   padding: 12px 20px;
-  margin: 8px 0;
-  
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
 }
 
-#createbtn {
-  width: 15%;
-  background-color: #4CAF50;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#createbtn:hover {
+button:hover {
   background-color: #45a049;
+  transform: translateY(-2px);
 }
-#cancelbtn{
-  width: 100%;
-  background-color: #d40606;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+
+button:active {
+  transform: translateY(1px); /* Adds a subtle press effect */
 }
-#editbtn{
-  width: 100%;
-  background-color: #085815;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.adminordermanagment{
+  color:rgb(255, 255, 255);
 }
-table {
-  width: 50%;
+.userorders{
+  color:rgb(255, 255, 255);
 }
-th {
-  background-color: #04AA6D;
-  color: white;
+.customerorders{
+  color:rgb(79, 79, 79);
 }
-th, td {
-  padding: 15px;
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+.homepagewelcome{
+  color:rgb(255, 255, 255);
+  size:15px;
+}
+/* Cancel Button */
+#cancelEditbtn, #cancelbtn {
+  background-color: #f44336; /* Red */
+}
+
+#cancelEditbtn:hover, #cancelbtn:hover {
+  background-color: #d32f2f;
+}
+
+/* Shipped Button */
+#shippedbtn {
+  background-color: #1e88e5; /* Blue */
+}
+
+#shippedbtn:hover {
+  background-color: #1976d2;
+}
+
+/* Completed Button */
+#completedbtn {
+  background-color: #388e3c; /* Green */
+}
+
+#completedbtn:hover {
+  background-color: #2e7d32;
+}
+
+/* Confirm Button */
+#confirmbtn {
+  background-color: #ff9800; /* Orange */
+}
+
+#confirmbtn:hover {
+  background-color: #fb8c00;
+}
+
+/* Edit Button */
+#editbtn {
+  background-color: #152298; /* Amber */
+}
+
+#editbtn:hover {
+  background-color: #3743b3;
+}
+
+/* Specific styles for buttons in table */
+td button {
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+td button:hover {
+  transform: translateY(-1px);
+}
+
+/* Button Color by Status */
+td.status.Shipped button {
+  background-color: #1e88e5; /* Blue */
+}
+
+td.status.Completed button {
+  background-color: #388e3c; /* Green */
+}
+
+td.status.Canceled button {
+  background-color: #aa1111; /* Red */
+}
+
+td.status.Pending button {
+  background-color: #f9a825; /* Amber */
+}
+
+td.status.Shipped button:hover {
+  background-color: #1976d2;
+}
+
+td.status.Completed button:hover {
+  background-color: #2e7d32;
+}
+
+td.status.Canceled button:hover {
+  background-color: #c62828; /* Darker red */
+}
+
+td.status.Pending button:hover {
+  background-color: #f57f17; /* Darker amber */
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Main Header */
+h1, h2 {
   text-align: center;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Form Styles */
+.div {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  width: 100%;
+  max-width: 800px;
+}
+
+.editform label {
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.editform input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #7f6dc7;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.editform input:focus {
+  border-color: #20419d;
+  outline: none;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+button:hover {
+  background-color: #4fa450;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Cancel Button */
+#cancelEditbtn, #cancelbtn .canc{
+  background-color: #7a2620;
+}
+
+#cancelEditbtn:hover, #cancelbtn:hover {
+  background-color: #b82d2d;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #0b1160;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+td {
+  background-color: #f9f9f9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+td button {
+  background-color: #008cba;
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-right: 5px;
 }
+
+td button:hover {
+  background-color: #0077b6;
+}
+
+td button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Status Column */
+td.status {
+  font-weight: bold;
+}
+
+td.status.Shipped {
+  color: #1e88e5;
+}
+
+td.status.Completed {
+  color: #388e3c;
+}
+
+td.status.Canceled {
+  color: #d32f2f;
+}
+
+td.status.Pending {
+  color: #808080;
+}
+
+.center {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+}
+
+.loading-message {
+  font-size: 16px;
+  color: #999;
+}
+
+.completebutton{
+  background-color: #09290b;
+}
+
+button[type="submit"] {
+  padding: 10px;
+  background-color: #171862;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #4130c4;
+}
+
+
+
+
