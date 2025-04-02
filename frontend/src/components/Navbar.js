@@ -1,26 +1,37 @@
-import { Link } from 'react-router-dom';
+import React from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const Navbar = () => {
-  return (
-    <header className="bg-gray-900 text-white p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
-        
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-extrabold tracking-wide neon-text">
-          Arul Electro Mart
-        </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex space-x-6">
-        <Link to="/Home" className="navTxt">Home</Link>
-          <Link to="/orders" className="navTxt">Orders</Link>
-          <Link to="/DirectPurchase" className="navTxt">Products</Link>
-          <Link to="/WorkoutForm" className="navTxt">Inventory</Link>
-          <Link to="/users" className="navTxt">Users</Link>
-          <button className="logoutBtn">Logout</button>
-        </nav>
+  return (
+    <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#011F60' }}>
+      <div className="container-fluid">
+        <a className="navbar-brand text-white" href="shop">Arul Online Electromart</a>
+        <div className="collapse navbar-collapse justify-content-center">
+          <ul className="navbar-nav">
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/DirectPurchase">Home</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/abc">Products</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/order">Orders</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/Inventory">Inventory</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/Arullogin">Login</a>
+            </li>
+          </ul>
+        </div>
+        <form className="d-flex me-3">
+        </form>
+        <button className="btn btn-danger">Logout</button>
       </div>
-    </header>
+    </nav>
   );
 };
 

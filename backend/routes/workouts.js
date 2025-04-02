@@ -5,7 +5,8 @@ const{
     getWorkouts,
     getWorkout,
     updateWorkout,
-    deleteWorkout
+    deleteWorkout,
+    purchaseProduct
 }=require('../controllers/taskController')
 
 const router=express.Router();
@@ -20,6 +21,9 @@ router.post('/',createWorkout)
 router.delete('/:id',deleteWorkout)
 
 router.put('/:id',updateWorkout)
+
+router.post('/:id/purchase', purchaseProduct)
+
 
 module.exports=router
 

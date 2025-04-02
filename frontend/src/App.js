@@ -17,12 +17,11 @@ function App() {
 
         <Routes>
 
-          <Route
-              path="/"
-              element={<Home/>}
-              />
+        <Route path="/" element={<DirectPurchase/>}/>
+
+
         <Route path="/WorkoutForm" element={<ProductForm/>}/>
-        <Route path="/Home" element={<Home/>}/>
+        <Route path="/Inventory" element={<Home/>}/>
         <Route path="/DirectPurchase" element={<DirectPurchase/>}/>
 
           

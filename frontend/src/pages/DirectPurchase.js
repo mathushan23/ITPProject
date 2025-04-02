@@ -1,74 +1,178 @@
-import { useWorkoutsContext } from "../hooks/useWorkoutsContext";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
-const DirectPurchase = ({ workout }) => {
-  const { dispatch } = useWorkoutsContext();
-  const [purchaseQty, setPurchaseQty] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [updatedWorkout, setUpdatedWorkout] = useState(workout);
+const ManualPurchaseForm = () => {
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [error, setError] = useState(null);
+  const [emptyFields, setEmptyFields] = useState([]);
+  const [scannerActive, setScannerActive] = useState(false);
 
-  // Show alert if stock is low
+  // Fetch available products and stock
   useEffect(() => {
-    if (updatedWorkout.quantity < 5) {
-      alert(`⚠️ Warning! Low stock for "${updatedWorkout.title}". Only ${updatedWorkout.quantity} left.`);
-    }
-  }, [updatedWorkout.quantity, updatedWorkout.title]);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/workouts"); // Updated API route
+        const data = await response.json();
+        if (response.ok) {
+          setProducts(data);
+        } else {
+          throw new Error("Failed to load products");
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  // Handle purchase
-  const handlePurchase = async () => {
-    if (purchaseQty > updatedWorkout.quantity) {
-      alert("Not enough stock available!");
+  // Update total amount when quantity or selected product changes
+  useEffect(() => {
+    if (selectedProduct && quantity) {
+      const product = products.find((p) => p._id === selectedProduct);
+      if (product) {
+        setTotalAmount(Number(quantity) * product.price);
+      }
+    } else {
+      setTotalAmount(0);
+    }
+  }, [selectedProduct, quantity, products]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedProduct || !quantity) {
+      setEmptyFields(["selectedProduct", "quantity"]);
+      setError("Please select a product and enter a valid quantity.");
       return;
     }
 
-    setLoading(true);
-    try {
-      const updatedQuantity = updatedWorkout.quantity - purchaseQty;
+    const product = products.find((p) => p._id === selectedProduct);
+    const purchaseQuantity = Number(quantity);
 
-      const response = await fetch(`/api/workouts/${workout._id}`, {
-        method: "PATCH",
+    if (!product) {
+      setError("Selected product not found.");
+      return;
+    }
+
+    if (isNaN(purchaseQuantity) || purchaseQuantity <= 0) {
+      setError("Quantity must be a positive number.");
+      return;
+    }
+
+    if (purchaseQuantity > product.quantity) {
+      setError(`Insufficient stock! Only ${product.quantity} available.`);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/workouts/${selectedProduct}/purchase`, {
+        method: "POST",
+        body: JSON.stringify({ quantity: purchaseQuantity, totalAmount }),
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity: updatedQuantity }),
       });
 
-      if (!response.ok) throw new Error("Failed to update quantity");
+      const data = await response.json();
 
-      // Update UI after purchase
-      const newWorkout = { ...updatedWorkout, quantity: updatedQuantity };
-      setUpdatedWorkout(newWorkout);
-      dispatch({ type: "UPDATE_WORKOUT", payload: newWorkout });
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to process purchase.");
+      }
 
-      alert(`✅ Purchase successful! ${purchaseQty} items bought.`);
-    } catch (error) {
-      console.error("Purchase error:", error);
-      alert("❌ Purchase failed! Please try again.");
-    } finally {
-      setLoading(false);
+      // Update UI: Reduce stock in the frontend state
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === selectedProduct ? { ...p, stock: p.stock - purchaseQuantity } : p
+        )
+      );
+
+      // Reset form
+      setSelectedProduct("");
+      setQuantity("");
+      setTotalAmount(0);
+      setError(null);
+      setEmptyFields([]);
+      alert("Purchase successful!");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  return (
-    <div className="workout-details">
-      <h4>{updatedWorkout.title}</h4>
-      <p><strong>Description: </strong> {updatedWorkout.description}</p>
-      <p><strong>Price: </strong> ${updatedWorkout.price}</p>
-      <p>
-        <strong>Available Quantity: </strong> {updatedWorkout.quantity}
-        {updatedWorkout.quantity < 5 && <span style={{ color: "red" }}> ⚠️ Low Stock</span>}
-      </p>
+  // QR Scanner Setup
+  useEffect(() => {
+    let scanner;
+    if (scannerActive) {
+      scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
 
+      scanner.render(
+        (decodedText) => {
+          const product = products.find((p) => p.barcode === decodedText);
+          if (product) {
+            setSelectedProduct(product._id);
+            setScannerActive(false);
+            scanner.clear();
+          } else {
+            setError("Product not found!");
+          }
+        },
+        (error) => {
+          console.log("QR Scan Error:", error);
+        }
+      );
+    }
+
+    return () => {
+      if (scanner) {
+        scanner.clear();
+      }
+    };
+  }, [scannerActive, products]);
+
+  return (
+    <form className="purchase-form" onSubmit={handleSubmit}>
+      <h3>Manual Purchase</h3>
+
+      <label htmlFor="product">Select Product</label>
+      <select
+        id="product"
+        onChange={(e) => setSelectedProduct(e.target.value)}
+        value={selectedProduct}
+        className={emptyFields.includes("selectedProduct") ? "error" : ""}
+      >
+        <option value="">-- Choose a Product --</option>
+        {products.map((product) => (
+          <option key={product._id} value={product._id}>
+            {product.title} (Stock: {product.quantity}, Price: {product.price} LKR)
+          </option>
+        ))}
+      </select>
+
+      <p>
+        <label htmlFor="quantity">Quantity</label>
+      </p>
       <input
+        id="quantity"
         type="number"
-        min="1"
-        max={updatedWorkout.quantity}
-        value={purchaseQty}
-        onChange={(e) => setPurchaseQty(Number(e.target.value))}
+        onChange={(e) => setQuantity(e.target.value)}
+        value={quantity}
+        className={emptyFields.includes("quantity") ? "error" : ""}
+        placeholder="Enter quantity"
       />
-      <button onClick={handlePurchase} disabled={loading}>
-        {loading ? "Processing..." : "Buy Now"}
+
+      <p className="total-amount">Total Amount: {totalAmount.toFixed(2)} LKR</p>
+
+      <button type="button" onClick={() => setScannerActive(true)}>
+        Scan QR Code
       </button>
-    </div>
+
+      {scannerActive && <div id="qr-reader"></div>}
+
+      <button type="submit">Confirm Purchase</button>
+
+      {error && <div className="error">{error}</div>}
+    </form>
   );
 };
 
-export default DirectPurchase;
+export default ManualPurchaseForm;

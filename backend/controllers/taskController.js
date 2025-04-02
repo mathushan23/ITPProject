@@ -129,6 +129,43 @@ const updateWorkout=async(req,res)=>{
 }
 
 
+const purchaseProduct = async (req, res) => {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    // Check if quantity is provided and is a positive number
+    if (!quantity || quantity <= 0) {
+        return res.status(400).json({ error: 'Invalid quantity' });
+    }
+
+    try {
+        const workout = await Workout.findById(id);
+
+        if (!workout) {
+            return res.status(404).json({ error: 'No such product' });
+        }
+
+        // Check if there is enough stock available
+        if (workout.quantity < quantity) {
+            return res.status(400).json({ error: 'Not enough stock available' });
+        }
+
+        // Deduct the purchased quantity from stock
+        workout.quantity -= quantity;
+
+        // Save the updated workout
+        await workout.save();
+
+        res.status(200).json({
+            message: 'Purchase successful',
+            updatedStock: workout.quantity
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+
 
 
 
@@ -139,5 +176,6 @@ module.exports={
     getWorkouts,
     getWorkout,
     deleteWorkout,
-    updateWorkout
+    updateWorkout,
+    purchaseProduct
 }

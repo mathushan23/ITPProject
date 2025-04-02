@@ -103,137 +103,114 @@ input.error {
 
 
 /*changing for navbar*/
-header {
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background: #0b2a5b;
-  padding: 8px 0; /* Reduced padding to decrease the vertical size */
-  height: 60px; /* Reduced height of navbar */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between; /* Adjust content to be spaced */
-  align-items: center; /* Center the items vertically */
-  animation: fadeInDown 0.5s ease-in-out;
+
+/*Nav bar 
+css*/
+
+/* Navbar.css */
+
+/* Navbar.css */
+
+.navbar {
+  background: linear-gradient(90deg, #011F60, #014DA4);
+  padding: 15px 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease-in-out;
 }
 
-/* Logo Styling with Neon Glow */
-.logo-text {
-  text-shadow: 0 0 8px #facc15, 0 0 12px #facc15, 0 0 20px #facc15;
-  transition: transform 0.3s ease-in-out;
-}
-
-/* Navigation Links - Responsive & Styled */
-.navTxt {
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 10px 15px;
-  display: inline-block;
-  position: relative;
-  text-transform: uppercase;
-  transition: color 0.3s ease-in-out, transform 0.2s ease-in-out;
-}
-
-/* Gradient Hover Effect for Links */
-.navTxt:hover {
-  color: #facc15;
-  transform: translateY(-2px);
-}
-
-.navTxt::after {
-  content: "";
-  display: block;
-  height: 2px;
-  width: 0;
-  background: linear-gradient(90deg, #facc15, #ff00ff);
-  transition: width 0.3s ease-in-out;
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.navTxt:hover::after {
-  width: 100%;
-}
-
-/* Logout Button Styling */
-.logoutBtn {
-  background-color: #dc2626;
-  padding: 10px 18px;
-  border-radius: 8px;
+.navbar-brand {
+  font-size: 1.8rem;
   font-weight: bold;
-  color: white; /* Make text white for better contrast */
-  font-size: 16px; /* Adjust font size */
+  letter-spacing: 1px;
+  color: #fff !important;
+  transition: 0.3s ease-in-out;
+}
+
+.navbar-brand:hover {
+  color: #f491cb !important;
+  transform: scale(1.1);
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-nav .nav-link {
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 8px 15px;
+  color: white !important;
+  border-radius: 10px;
+  transition: 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  background: #60cdee;
+  color: #011F60 !important;
+  transform: scale(1.1);
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 25px;
+  padding: 5px 10px;
+  margin-right: 15px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  border-radius: 25px;
+  font-size: 1rem;
+}
+
+.btn-search {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
-  border: none; /* Remove default button border */
+  transition: 0.3s ease-in-out;
 }
 
-.logoutBtn:hover {
-  background-color: #b91c1c; /* Darker red on hover */
-  transform: scale(1.05); /* Slight scale effect for hover */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Add a shadow effect on hover */
+.btn-search:hover {
+  transform: scale(1.2);
+  color: #FFC107;
 }
 
-.logoutBtn:focus {
-  outline: none; /* Remove outline on focus for better design */
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); /* Light border on focus for accessibility */
-}
-
-/* Mobile Navigation (Hamburger Menu) */
-.menu-icon {
-  display: none;
-  font-size: 2rem;
+.btn-logout {
+  background: linear-gradient(45deg, #FF3B3B, #C70039);
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  border-radius: 25px;
   cursor: pointer;
-  color: #facc15;
-  transition: transform 0.2s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 
-.menu-icon:hover {
-  transform: rotate(10deg);
+.btn-logout:hover {
+  background: #D90000;
+  transform: scale(1.1);
 }
 
-/* Responsive Navbar for Mobile */
-@media (max-width: 768px) {
-  .navTxt {
-    display: block;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .logoutBtn {
-    display: block;
-    width: 100%;
-    text-align: center;
-    margin-top: 10px;
-  }
-
-  nav {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px 0;
-    border-top: 2px solid #facc15;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  }
-
-  nav.active {
-    display: flex;
-  }
-
-  .menu-icon {
-    display: block;
-  }
+.task-info {
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin-top: 10px;
 }
 
-
+.error-text {
+  font-weight: bold;
+  color: yellow;
+  text-align: center;
+  margin-top: 5px;
+}
 
 
 /*Workout form csss*/
@@ -285,7 +262,7 @@ header {
 .create button {
   width: 100%;
   padding: 10px;
-  background-color: #28a745;
+  background-color: #007bff;
   border: none;
   color: white;
   font-size: 16px;
@@ -294,7 +271,7 @@ header {
 }
 
 .create button:hover {
-  background-color: #218838;
+  background-color: #003d82;
 }
 
 /* Label Styling */
@@ -394,4 +371,139 @@ header {
 .modal-footer {
   border-top: 1px solid #ddd;
   padding-top: 15px;
+}
+
+
+/*Direct purchase page..................................*/
+
+/* General form styling */
+.purchase-form {
+  max-width: 450px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease-in-out;
+  border-left: 6px solid #007bff;
+}
+
+.purchase-form:hover {
+  transform: scale(1.02);
+}
+
+/* Heading */
+.purchase-form h3 {
+  text-align: center;
+  color: #007bff;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Label styling */
+.purchase-form label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  color: #34495e;
+  font-size: 16px;
+}
+
+/* Input fields and select dropdown */
+.purchase-form select,
+.purchase-form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #bdc3c7;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  background: #f8f9fa;
+}
+
+.purchase-form select:focus,
+.purchase-form input:focus {
+  border-color: #007bff;
+  box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.5);
+  background: #ffffff;
+}
+
+/* Error highlighting for empty fields */
+.purchase-form input.error,
+.purchase-form select.error {
+  border-color: red;
+  background: #ffe6e6;
+}
+
+/* Total amount display */
+.purchase-form .total-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1abc9c;
+  text-align: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #eafaf1;
+  border-radius: 5px;
+  border-left: 5px solid #1abc9c;
+}
+
+/* Submit button */
+
+.purchase-form button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.purchase-form button:hover {
+  background: linear-gradient(45deg, #0056b3, #003d82);
+  transform: scale(1.03);
+}
+
+/* Error message */
+.error {
+  color: red;
+  font-size: 14px;
+  text-align: center;
+  background: #ffe6e6;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .purchase-form {
+    max-width: 100%;
+    padding: 20px;
+    border-left: 4px solid #007bff;
+  }
+
+  .purchase-form h3 {
+    font-size: 20px;
+  }
+
+  .purchase-form select,
+  .purchase-form input {
+    font-size: 14px;
+  }
+
+  .purchase-form button {
+    font-size: 16px;
+  }
 }

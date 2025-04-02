@@ -16,15 +16,20 @@ const WorkoutDetails = ({ workout }) => {
   }, [workout.quantity,workout.title]); // Runs when quantity changes
 
   const deleteWorkout = async () => {
-    const response = await fetch(`/api/workouts/${workout._id}`, {
-      method: "DELETE",
-    });
-    const json = await response.json();
-
-    if (response.ok) {
-      dispatch({ type: "DELETE_WORKOUT", payload: json });
+    const isConfirmed = window.confirm(`Are you sure you want to delete "${workout.title}"? This action cannot be undone.`);
+  
+    if (isConfirmed) {
+      const response = await fetch(`/api/workouts/${workout._id}`, {
+        method: "DELETE",
+      });
+      const json = await response.json();
+  
+      if (response.ok) {
+        dispatch({ type: "DELETE_WORKOUT", payload: json });
+      }
     }
   };
+  
 
   return (
     <>
@@ -35,7 +40,7 @@ const WorkoutDetails = ({ workout }) => {
         </p>
 
         <p>
-          <strong>Price: </strong> {workout.price}
+          <strong>Price: </strong> {workout.price} LKR
         </p>
 
         <p>

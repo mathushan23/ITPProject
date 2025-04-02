@@ -1,6 +1,5 @@
 
 //this file is provider
-// WorkoutsContext is reducer
 
 import { WorkoutsContext } from "../context/WorkoutsContext"
 
