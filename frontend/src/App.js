@@ -3,6 +3,7 @@ import{BrowserRouter,Routes,Route}from 'react-router-dom'
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
 import ProductForm from './components/ProductForm';
+import DirectPurchase from './pages/DirectPurchase';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               />
         <Route path="/WorkoutForm" element={<ProductForm/>}/>
         <Route path="/Home" element={<Home/>}/>
+        <Route path="/DirectPurchase" element={<DirectPurchase/>}/>
 
           
         </Routes>
