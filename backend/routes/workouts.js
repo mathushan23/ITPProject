@@ -1,30 +1,32 @@
-const express=require('express')
-const{
-
+const express = require('express');
+const {
     createWorkout,
     getWorkouts,
     getWorkout,
     updateWorkout,
     deleteWorkout,
-    purchaseProduct
-}=require('../controllers/taskController')
+    purchaseProduct,
+    getSalesReportByDate, 
+    getAllProducts,
+    getAllTimeSalesForProduct  // Import the sales report function
+} = require('../controllers/taskController');
 
-const router=express.Router();
+const router = express.Router();
 
-router.get('/',getWorkouts)
+router.get('/', getWorkouts);
+router.get('/:id', getWorkout);
+router.post('/', createWorkout);
+router.delete('/:id', deleteWorkout);
+router.put('/:id', updateWorkout);
+router.post('/:id/purchase', purchaseProduct);
 
-router.get('/:id',getWorkout)
+// Sales report route by date
+router.get('/salesreport/:date', getSalesReportByDate); // Add this line to fetch sales report
 
-router.post('/',createWorkout)
+// GET all product titles
+router.get('/products', getAllProducts);
 
+// GET all-time sales of a product by title
+router.get('/salesreport/product/:title',getAllTimeSalesForProduct);
 
-router.delete('/:id',deleteWorkout)
-
-router.put('/:id',updateWorkout)
-
-router.post('/:id/purchase', purchaseProduct)
-
-
-module.exports=router
-
-
+module.exports = router;

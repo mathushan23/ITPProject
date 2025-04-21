@@ -1,4 +1,6 @@
 const Workout=require('../models/TaskModel')
+const Snapshot =require('../models/SnapshotModel')
+
 const mongoose=require('mongoose')
 
 
@@ -156,16 +158,118 @@ const purchaseProduct = async (req, res) => {
         // Save the updated workout
         await workout.save();
 
+        // Create snapshot for sales tracking
+        const snapshot = new Snapshot({
+            date: new Date().toISOString().split('T')[0], // Get the current date in "YYYY-MM-DD" format
+            productId: workout._id,
+            productTitle: workout.title,
+            quantity: quantity,
+            price: workout.price,
+        });
+
+        // Save the snapshot to track the sale
+        await snapshot.save();
+
         res.status(200).json({
             message: 'Purchase successful',
-            updatedStock: workout.quantity
+            updatedStock: workout.quantity,
+            snapshot: snapshot, // Include snapshot details in response
         });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 };
 
+const getSalesReportByDate = async (req, res) => {
+    const { date } = req.params;
 
+    try {
+        // Aggregate sales data for the specified date
+        const salesReport = await Snapshot.aggregate([
+            {
+                $match: {
+                    date: date, // Match snapshots for the specific date
+                },
+            },
+            {
+                $group: {
+                    _id: '$productId', // Group by product
+                    totalQuantitySold: { $sum: '$quantity' }, // Sum the sold quantities
+                    totalSales: { $sum: { $multiply: ['$quantity', '$price'] } }, // Calculate total sales amount
+                },
+            },
+            {
+                $lookup: {
+                    from: 'tasks', // Use the 'tasks' collection (your product collection)
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'productDetails',
+                },
+            },
+            {
+                $unwind: '$productDetails',
+            },
+            {
+                $project: {
+                    productTitle: '$productDetails.title',
+                    totalQuantitySold: 1,
+                    totalSales: 1,
+                },
+            },
+        ]);
+
+        if (!salesReport || salesReport.length === 0) {
+            return res.status(404).json({ message: 'No sales data found for this date' });
+        }
+
+        res.status(200).json(salesReport);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+// Get all product titles
+const getAllProducts = async (req, res) => {
+    try {
+      const products = await Workout.find({}, 'title');
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to fetch products' });
+    }
+  };
+  
+  // Get all-time sales for a specific product
+  const getAllTimeSalesForProduct = async (req, res) => {
+    const { title } = req.params;
+  
+    try {
+      const snapshots = await ProductSnapshot.find({ productTitle: title });
+  
+      if (!snapshots || snapshots.length === 0) {
+        return res.status(404).json({ message: 'No sales found for this product' });
+      }
+  
+      let totalQuantitySold = 0;
+      let totalSales = 0;
+  
+      snapshots.forEach((snap) => {
+        totalQuantitySold += snap.quantity || 0;
+        totalSales += (snap.quantity || 0) * (snap.price || 0);
+      });
+  
+      const report = {
+        productTitle: title,
+        totalQuantitySold,
+        totalSales,
+      };
+  
+      res.status(200).json(report);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to fetch product sales report' });
+    }
+  };
+  
 
 
 
@@ -177,5 +281,8 @@ module.exports={
     getWorkout,
     deleteWorkout,
     updateWorkout,
-    purchaseProduct
+    purchaseProduct,
+    getSalesReportByDate,
+    getAllTimeSalesForProduct,
+    getAllProducts
 }

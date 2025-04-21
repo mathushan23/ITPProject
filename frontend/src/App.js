@@ -4,6 +4,8 @@ import Home from './pages/Home';
 import Navbar from './components/Navbar';
 import ProductForm from './components/ProductForm';
 import DirectPurchase from './pages/DirectPurchase';
+import SalesReport from './pages/SalesReport'
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/WorkoutForm" element={<ProductForm/>}/>
         <Route path="/Inventory" element={<Home/>}/>
         <Route path="/DirectPurchase" element={<DirectPurchase/>}/>
+        <Route path="/report" element={<SalesReport/>}/>
 
           
         </Routes>

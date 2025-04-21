@@ -24,39 +24,59 @@ const MyVerticallyCenteredModal = ({ show, onHide, workout }) => {
     }
   }, [workout]);
 
-  
-// Handle Update Task
-const updateTask = async (e) => {
-  e.preventDefault(); // Prevent default form submission behavior
+  // Handle Update Task
+  const updateTask = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
 
-  const updatedWorkout = {
-    title,
-    description,
-    price,
-    quantity,
-    updatedAt: new Date().toISOString(), // Add current timestamp
+    // Validation
+    if (!title || !description || !price || !quantity) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (title.length < 3 || title.length > 50) {
+      setError("Title must be between 3 and 50 characters.");
+      return;
+    }
+    if (description.length < 5 || description.length > 200) {
+      setError("Description must be between 5 and 200 characters.");
+      return;
+    }
+
+    if (price <= 0 || quantity <= 0) {
+      setError("Price and quantity must be positive values.");
+      return;
+    }
+
+    setError(null); // Clear error if validation passes
+
+    const updatedWorkout = {
+      title,
+      description,
+      price,
+      quantity,
+      updatedAt: new Date().toISOString(), // Add current timestamp
+    };
+
+    console.log("Updating workout:", workout._id, updatedWorkout);
+
+    const response = await fetch(`/api/workouts/${workout._id}`, {
+      method: "PUT",
+      body: JSON.stringify(updatedWorkout),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      console.error("Error updating workout:", json.error);
+      setError(json.error);
+    } else {
+      console.log("Workout updated successfully:", json);
+      dispatch({ type: "UPDATE_WORKOUT", payload: json }); // Update context
+      onHide(); // Close modal
+    }
   };
-
-  console.log("Updating workout:", workout._id, updatedWorkout);
-
-  const response = await fetch(`/api/workouts/${workout._id}`, {
-    method: "PUT",
-    body: JSON.stringify(updatedWorkout),
-    headers: { "Content-Type": "application/json" },
-  });
-
-  const json = await response.json();
-
-  if (!response.ok) {
-    console.error("Error updating workout:", json.error);
-    setError(json.error);
-  } else {
-    console.log("Workout updated successfully:", json);
-    dispatch({ type: "UPDATE_WORKOUT", payload: json }); // Update context
-    onHide(); // Close modal
-  }
-};
-
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
