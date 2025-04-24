@@ -3,15 +3,18 @@ const Schema = mongoose.Schema;
 
 const TaskSchema = new Schema(
     {
-        title:{
-            type:String,
-            require:true,
+        title: {
+            type: String,
+            required: true,
         },
-        description:{
-            type:String,
+        description: {
+            type: String,
+        },
+        photo: {
+            type: String, // stores the filename or image URL
         },
     },
-    {timestamps:true}
+    { timestamps: true }
 );
 
 module.exports = mongoose.model("Task", TaskSchema);

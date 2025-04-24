@@ -24,8 +24,8 @@ const AddTask = () => {
             valid = false;
         }
 
-        if (description.trim().length < 10) {
-            errors.description = "Product description must be at least 10 characters long.";
+        if (description.trim().length < 5) {
+            errors.description = "Product description must be at least 5 characters long.";
             valid = false;
         }
 

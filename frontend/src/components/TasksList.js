@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedTask, deleteTaskFromServer } from "../slices/tasksSlice";
 import { getTasksFromServer } from "./../slices/tasksSlice";
 import AddTask from "./AddTask.js";
-
+import Navbar from "./Navbar.js";
 const TasksList = () => {
   const { tasksList } = useSelector((state) => state.tasks);
   const dispatch = useDispatch();
@@ -37,6 +37,7 @@ const TasksList = () => {
   const [modalShow, setModalShow] = useState(false);
   return (
     <>
+      <Navbar/>
       <AddTask />
       <Table striped bordered hover>
         <thead>
