@@ -1,141 +1,113 @@
-const Workout=require('../models/TaskModel')
-const Snapshot =require('../models/SnapshotModel')
+const Workout = require('../models/TaskModel');
+const Snapshot = require('../models/SnapshotModel');
+const mongoose = require('mongoose');
+const QRCode = require('qrcode'); // QR code generation library
 
-const mongoose=require('mongoose')
+// Get all workouts
+const getWorkouts = async (req, res) => {
+    const workouts = await Workout.find({}).sort({ createdAt: -1 });
+    res.status(200).json(workouts);
+};
 
+// Get a single workout
+const getWorkout = async (req, res) => {
+    const { id } = req.params;
 
-//get all workout
-
-const getWorkouts=async(req,res)=>{
-    // we need all data so thats why we put empty parameter in FIND
-    const workouts=await Workout.find({}).sort({createdAt:-1})
-
-    res.status(200).json(workouts)
-}
-
-//get a single workout
-
-const getWorkout=async(req,res)=>{
-
-    const{id}=req.params
-
-    if(!mongoose.Types.ObjectId.isValid(id)){
-
-      return  res.status(404).json({error:'No such workout'})
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout' });
     }
 
-    const workout=await Workout.findById(id)
+    const workout = await Workout.findById(id);
 
-    if(!workout){
-        return res.status(404).json({error:'No such workout'})
-    }
- 
-    res.status(200).json(workout)
-
-
-}
-
-
-//create a new workout
-
-const createWorkout=async(req,res)=>{
-
-    
-    const{title,description,price,quantity}=req.body
-
-
-    let emptyFields=[]
-
-    if(!title){
-        emptyFields.push('title')
+    if (!workout) {
+        return res.status(404).json({ error: 'No such workout' });
     }
 
-    if(!description){
-        emptyFields.push('description')
+    res.status(200).json(workout);
+};
+
+// Create a new workout
+const createWorkout = async (req, res) => {
+    const { title, description, price, quantity } = req.body;
+
+    let emptyFields = [];
+
+    if (!title) {
+        emptyFields.push('title');
+    }
+    if (!description) {
+        emptyFields.push('description');
+    }
+    if (!price) {
+        emptyFields.push('price');
+    }
+    if (!quantity) {
+        emptyFields.push('quantity');
     }
 
-    if(!price){
-        emptyFields.push('price')
+    if (emptyFields.length > 0) {
+        return res.status(400).json({ error: 'Please fill in all the fields', emptyFields });
     }
 
-    if(!quantity){
-        emptyFields.push('quantity')
+    // Generate barcode and QR code for the product
+    const barcode = generateBarcode();
+    const qrCode = await generateQRCode(barcode);
+
+    // Add document to DB
+    try {
+        const workout = await Workout.create({
+            title,
+            description,
+            price,
+            quantity,
+            barcode,
+            qrCode, // Add QR code to the workout
+        });
+        res.status(200).json(workout);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Delete a workout
+const deleteWorkout = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout' });
     }
 
-    if(emptyFields.length>0){
-        return res.status(400).json({error:'Please fill in all the fields',emptyFields})
+    const workout = await Workout.findByIdAndDelete({ _id: id });
+
+    if (!workout) {
+        return res.status(404).json({ error: 'No such workout' });
     }
 
-    //add doc to db
+    res.status(200).json(workout);
+};
 
-    try{
-            const workout=await Workout.create({title,description,price,quantity})
-            res.status(200).json(workout)
+// Update a workout
+const updateWorkout = async (req, res) => {
+    const { id } = req.params;
 
-    }catch(error){
-
-        res.status(400).json({error:error.message})
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout' });
     }
 
-}
+    const workout = await Workout.findByIdAndUpdate({ _id: id }, { ...req.body });
 
-//delete a workout
-
-const deleteWorkout=async(req,res)=>{
-
-    const{id}=req.params
-
-    if(!mongoose.Types.ObjectId.isValid(id)){
-
-        return  res.status(404).json({error:'No such workout'})
-  
-      }
-  
-      const workout=await Workout.findByIdAndDelete({_id:id})
-  
-      if(!workout){
-          return res.status(404).json({error:'No such workout'})
-      }
-   
-      res.status(200).json(workout)
-  
-
-}
-
-
-//update a workout
-
-const updateWorkout=async(req,res)=>{
-
-    const{id}=req.params
-
-    if(!mongoose.Types.ObjectId.isValid(id)){
-
-        return  res.status(404).json({error:'No such workout'})
-  
-      }   
-    
- const workout=await Workout.findByIdAndUpdate({_id:id},{
-
-    ...req.body
-    })
-
-    
-    if(!workout){
-        return res.status(404).json({error:'No such workout'})
+    if (!workout) {
+        return res.status(404).json({ error: 'No such workout' });
     }
- 
-    res.status(200).json(workout)
 
-}
+    res.status(200).json(workout);
+};
 
-
+// Purchase a product
 const purchaseProduct = async (req, res) => {
     const { id } = req.params;
     const { quantity } = req.body;
 
-    // Check if quantity is provided and is a positive number
     if (!quantity || quantity <= 0) {
         return res.status(400).json({ error: 'Invalid quantity' });
     }
@@ -147,33 +119,28 @@ const purchaseProduct = async (req, res) => {
             return res.status(404).json({ error: 'No such product' });
         }
 
-        // Check if there is enough stock available
         if (workout.quantity < quantity) {
             return res.status(400).json({ error: 'Not enough stock available' });
         }
 
-        // Deduct the purchased quantity from stock
         workout.quantity -= quantity;
 
-        // Save the updated workout
         await workout.save();
 
-        // Create snapshot for sales tracking
         const snapshot = new Snapshot({
-            date: new Date().toISOString().split('T')[0], // Get the current date in "YYYY-MM-DD" format
+            date: new Date().toISOString().split('T')[0],
             productId: workout._id,
             productTitle: workout.title,
             quantity: quantity,
             price: workout.price,
         });
 
-        // Save the snapshot to track the sale
         await snapshot.save();
 
         res.status(200).json({
             message: 'Purchase successful',
             updatedStock: workout.quantity,
-            snapshot: snapshot, // Include snapshot details in response
+            snapshot: snapshot,
         });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
@@ -269,13 +236,41 @@ const getAllProducts = async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch product sales report' });
     }
   };
+
+// Generate QR Code for a given barcode
+const generateQRCode = async (barcode) => {
+    try {
+        const qrCode = await QRCode.toDataURL(barcode); // Generates a QR code URL from barcode
+        return qrCode;
+    } catch (error) {
+        throw new Error('Error generating QR code');
+    }
+};
+
+// Generate a unique barcode (example: PROD-12345)
+const generateBarcode = (prefix = 'PROD') => {
+    return `${prefix}-${Date.now().toString().slice(-5)}`;
+};
+
+
+const getWorkoutByBarcode = async (req, res) => {
+    const { barcode } = req.params;
+  
+    try {
+      const workout = await Workout.findOne({ barcode });
+  
+      if (!workout) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+  
+      res.status(200).json(workout);
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  };
   
 
-
-
-
-module.exports={
-
+module.exports = {
     createWorkout,
     getWorkouts,
     getWorkout,
@@ -283,6 +278,9 @@ module.exports={
     updateWorkout,
     purchaseProduct,
     getSalesReportByDate,
+    getAllProducts,
     getAllTimeSalesForProduct,
-    getAllProducts
-}
+    generateQRCode,
+    generateBarcode,
+    getWorkoutByBarcode
+};

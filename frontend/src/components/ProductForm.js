@@ -10,6 +10,7 @@ const WorkoutForm = () => {
   const [quantity, setQuantity] = useState('');
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
+  const [qrCode, setQrCode] = useState(null);  // State to hold the generated QR code
 
   // Real-time validation
   const handleInputChange = (setter, field, value) => {
@@ -93,6 +94,9 @@ const WorkoutForm = () => {
         throw new Error(json.error || "Failed to add product.");
       }
 
+      // Set QR code after product is created
+      setQrCode(json.qrCode);  // Assuming your API returns the QR code URL
+
       // Reset form after successful submission
       setTitle('');
       setDescription('');
@@ -155,6 +159,13 @@ const WorkoutForm = () => {
       <button type="submit">Add Product</button>
 
       {error && <div className="error">{error}</div>}
+
+      {qrCode && (
+        <div>
+          <h4>QR Code for {title}</h4>
+          <img src={qrCode} alt="QR Code" />
+        </div>
+      )}
     </form>
   );
 };

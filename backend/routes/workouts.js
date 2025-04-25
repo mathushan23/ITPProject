@@ -8,7 +8,8 @@ const {
     purchaseProduct,
     getSalesReportByDate, 
     getAllProducts,
-    getAllTimeSalesForProduct  // Import the sales report function
+    getAllTimeSalesForProduct,
+    getWorkoutByBarcode  // Import the sales report function
 } = require('../controllers/taskController');
 
 const router = express.Router();
@@ -28,5 +29,8 @@ router.get('/products', getAllProducts);
 
 // GET all-time sales of a product by title
 router.get('/salesreport/product/:title',getAllTimeSalesForProduct);
+
+router.get('/workout/barcode/:barcode', getWorkoutByBarcode);
+
 
 module.exports = router;

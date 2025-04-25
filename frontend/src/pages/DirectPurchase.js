@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { useState, useEffect, useRef } from "react";
+import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
 
 const ManualPurchaseForm = () => {
   const [products, setProducts] = useState([]);
@@ -10,11 +10,14 @@ const ManualPurchaseForm = () => {
   const [emptyFields, setEmptyFields] = useState([]);
   const [scannerActive, setScannerActive] = useState(false);
 
-  // Fetch available products and stock
+  const formRef = useRef();
+  const quantityRef = useRef();
+
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/workouts"); // Updated API route
+        const response = await fetch("/api/workouts");
         const data = await response.json();
         if (response.ok) {
           setProducts(data);
@@ -28,7 +31,7 @@ const ManualPurchaseForm = () => {
     fetchProducts();
   }, []);
 
-  // Update total amount when quantity or selected product changes
+  // Update total amount
   useEffect(() => {
     if (selectedProduct && quantity) {
       const product = products.find((p) => p._id === selectedProduct);
@@ -80,14 +83,15 @@ const ManualPurchaseForm = () => {
         throw new Error(data.error || "Failed to process purchase.");
       }
 
-      // Update UI: Reduce stock in the frontend state
+      // Update UI
       setProducts((prev) =>
         prev.map((p) =>
-          p._id === selectedProduct ? { ...p, stock: p.stock - purchaseQuantity } : p
+          p._id === selectedProduct
+            ? { ...p, quantity: p.quantity - purchaseQuantity }
+            : p
         )
       );
 
-      // Reset form
       setSelectedProduct("");
       setQuantity("");
       setTotalAmount(0);
@@ -99,7 +103,7 @@ const ManualPurchaseForm = () => {
     }
   };
 
-  // QR Scanner Setup
+  // Live QR Code Scanner
   useEffect(() => {
     let scanner;
     if (scannerActive) {
@@ -110,15 +114,17 @@ const ManualPurchaseForm = () => {
           const product = products.find((p) => p.barcode === decodedText);
           if (product) {
             setSelectedProduct(product._id);
+            setQuantity("1");
             setScannerActive(false);
             scanner.clear();
+            setError(null);
+            formRef.current?.scrollIntoView({ behavior: "smooth" });
+            quantityRef.current?.focus();
           } else {
             setError("Product not found!");
           }
         },
-        (error) => {
-          console.log("QR Scan Error:", error);
-        }
+        (error) => console.log("QR Scan Error:", error)
       );
     }
 
@@ -129,8 +135,33 @@ const ManualPurchaseForm = () => {
     };
   }, [scannerActive, products]);
 
+  // Image Upload QR Handler
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const html5QrCode = new Html5Qrcode("qr-reader-temp");
+
+    try {
+      const decodedText = await html5QrCode.scanFile(file, true);
+      const product = products.find((p) => p.barcode === decodedText);
+      if (product) {
+        setSelectedProduct(product._id);
+        setQuantity("1");
+        setError(null);
+        formRef.current?.scrollIntoView({ behavior: "smooth" });
+        quantityRef.current?.focus();
+      } else {
+        setError("Product not found from image QR.");
+      }
+    } catch (err) {
+      setError("Could not read QR code from image.");
+      console.error(err);
+    }
+  };
+
   return (
-    <form className="purchase-form" onSubmit={handleSubmit}>
+    <form className="purchase-form" onSubmit={handleSubmit} ref={formRef}>
       <h3>Manual Purchase</h3>
 
       <label htmlFor="product">Select Product</label>
@@ -148,10 +179,38 @@ const ManualPurchaseForm = () => {
         ))}
       </select>
 
-      <p>
-        <label htmlFor="quantity">Quantity</label>
-      </p>
+      {selectedProduct && (
+        <div className="qr-preview" style={{ marginTop: "10px" }}>
+          <p>QR Code for this product:</p>
+          <img
+            src={products.find((p) => p._id === selectedProduct)?.qrCode}
+            alt="Product QR Code"
+            style={{ width: "150px", marginTop: "10px" }}
+          />
+        </div>
+      )}
+
+      {selectedProduct && (
+        <div
+          className="product-info"
+          style={{
+            marginTop: "10px",
+            padding: "10px",
+            backgroundColor: "#f0f0f0",
+            borderRadius: "8px",
+          }}
+        >
+          <h4>Selected Product Details</h4>
+          <p><strong>Name:</strong> {products.find(p => p._id === selectedProduct)?.title}</p>
+          <p><strong>Price:</strong> {products.find(p => p._id === selectedProduct)?.price} LKR</p>
+          <p><strong>Stock Available:</strong> {products.find(p => p._id === selectedProduct)?.quantity}</p>
+          <p><strong>Selected Quantity:</strong> {quantity}</p>
+        </div>
+      )}
+
+      <label htmlFor="quantity">Quantity</label>
       <input
+        ref={quantityRef}
         id="quantity"
         type="number"
         onChange={(e) => setQuantity(e.target.value)}
@@ -162,11 +221,20 @@ const ManualPurchaseForm = () => {
 
       <p className="total-amount">Total Amount: {totalAmount.toFixed(2)} LKR</p>
 
-      <button type="button" onClick={() => setScannerActive(true)}>
-        Scan QR Code
+            <button type="button" onClick={() => setScannerActive(true)}>
+        Scan Live QR Code
       </button>
 
-      {scannerActive && <div id="qr-reader"></div>}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        style={{ marginTop: "10px" }}
+      />
+
+      {scannerActive && <div id="qr-reader" style={{ marginTop: "20px" }}></div>}
+      <div id="qr-reader-temp" style={{ display: "none" }}></div>
+
 
       <button type="submit">Confirm Purchase</button>
 
