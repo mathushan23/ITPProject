@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
+import { toast } from "react-toastify"; // Import Toastify
 
 const ManualPurchaseForm = () => {
   const [products, setProducts] = useState([]);
@@ -97,9 +98,10 @@ const ManualPurchaseForm = () => {
       setTotalAmount(0);
       setError(null);
       setEmptyFields([]);
-      alert("Purchase successful!");
+      toast.success("Purchase successful!"); // Toastify success message
     } catch (err) {
       setError(err.message);
+      toast.error("Purchase failed. Please try again."); // Toastify error message
     }
   };
 
@@ -221,7 +223,7 @@ const ManualPurchaseForm = () => {
 
       <p className="total-amount">Total Amount: {totalAmount.toFixed(2)} LKR</p>
 
-            <button type="button" onClick={() => setScannerActive(true)}>
+      <button type="button" onClick={() => setScannerActive(true)}>
         Scan Live QR Code
       </button>
 
@@ -229,12 +231,11 @@ const ManualPurchaseForm = () => {
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
-        style={{ marginTop: "10px" }}
+        style={{ marginTop: "10px" }} 
       />
 
       {scannerActive && <div id="qr-reader" style={{ marginTop: "20px" }}></div>}
       <div id="qr-reader-temp" style={{ display: "none" }}></div>
-
 
       <button type="submit">Confirm Purchase</button>
 

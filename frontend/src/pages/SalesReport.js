@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList
+} from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas'; // Import html2canvas
+import { useTheme } from '../context/ThemeContext'; // Import the theme context
 
 const SalesReport = () => {
+  const { theme } = useTheme(); // Get current theme
   const [date, setDate] = useState('');
   const [salesReport, setSalesReport] = useState([]);
   const [error, setError] = useState(null);
-  const [viewType, setViewType] = useState('date'); // 'date' | 'products' | 'productSales'
+  const [viewType, setViewType] = useState('date');
   const [productList, setProductList] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Fetch sales report by date
   const fetchSalesReportByDate = async () => {
     try {
       const response = await fetch(`/api/workouts/salesreport/${date}`);
@@ -18,12 +25,11 @@ const SalesReport = () => {
       setViewType('date');
       setError(null);
     } catch (err) {
-      setError('Error fetching sales report');
+      setError('No sales in given period');
       setSalesReport([]);
     }
   };
 
-  // Fetch all products
   const fetchAllProducts = async () => {
     try {
       const response = await fetch(`/api/workouts`);
@@ -39,13 +45,12 @@ const SalesReport = () => {
     }
   };
 
-  // Fetch all-time sales of a selected product
   const fetchProductSales = async (title) => {
     try {
       const response = await fetch(`/api/workouts/salesreport/product/${encodeURIComponent(title)}`);
       if (!response.ok) throw new Error('Error fetching product sales');
       const data = await response.json();
-      setSalesReport([data]); // Wrap in array for consistent table display
+      setSalesReport([data]);
       setSelectedProduct(title);
       setViewType('productSales');
       setError(null);
@@ -55,71 +60,74 @@ const SalesReport = () => {
     }
   };
 
-  return (
-    <div style={{ maxWidth: '900px', margin: 'auto', padding: '20px' }}>
-      <h1 style={{ color: '#0052cc', textAlign: 'center' }}>Sales Report</h1>
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text("Sales Report", 14, 15);
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
+    // Capture the chart as an image using html2canvas
+    const chartElement = document.getElementById('sales-chart'); // The chart container ID
+    html2canvas(chartElement).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Add the image to the PDF
+      doc.addImage(imgData, 'PNG', 10, 20, 180, 100);
+
+      // Add the table data (sales report) below the chart
+      const tableData = salesReport.map(item => [
+        item.productTitle,
+        item.totalQuantitySold,
+        `${item.totalSales.toFixed(2)} LKR`
+      ]);
+
+      autoTable(doc, {
+        head: [['Product', 'Quantity Sold', 'Total Sales']],
+        body: tableData,
+        startY: 130, // Start the table after the chart
+      });
+
+      // Save the PDF
+      doc.save(`sales_report_${viewType}.pdf`);
+    });
+  };
+
+  return (
+    <div className={`container ${theme}`}> {/* Apply theme here */}
+      <h1 className="heading">Sales Report</h1>
+
+      <div className="controls">
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          style={{
-            padding: '10px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            fontSize: '16px',
-          }}
+          className="date-input"
         />
         <button
           onClick={fetchSalesReportByDate}
-          style={{
-            background: '#0052cc',
-            color: 'white',
-            border: 'none',
-            padding: '10px 20px',
-            borderRadius: '6px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
+          className="btnprimary"
         >
           Get Report by Date
         </button>
 
         <button
           onClick={fetchAllProducts}
-          style={{
-            background: '#28a745',
-            color: 'white',
-            border: 'none',
-            padding: '10px 20px',
-            borderRadius: '6px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
+          className="btnsuccess"
         >
           Sales of Each Product
         </button>
       </div>
 
-      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       {/* Product List */}
       {viewType === 'products' && productList.length > 0 && (
-        <div>
-          <h3 style={{ textAlign: 'center', color: '#444' }}>Click a product to view its all-time sales</h3>
-          <ul style={{ listStyle: 'none', padding: 0, textAlign: 'center' }}>
+        <div className="product-list">
+          <h3>Click a product to view its all-time sales</h3>
+          <ul>
             {productList.map((product) => (
               <li
                 key={product._id}
                 onClick={() => fetchProductSales(product.title)}
-                style={{
-                  padding: '10px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #ddd',
-                  color: '#0052cc',
-                  fontWeight: 'bold',
-                }}
+                className="product-item"
               >
                 {product.title}
               </li>
@@ -130,51 +138,64 @@ const SalesReport = () => {
 
       {/* Sales Table */}
       {salesReport.length > 0 && (
-        <div style={{ marginTop: '30px' }}>
+        <div className="sales-table">
           {selectedProduct && (
-            <h2 style={{ textAlign: 'center', color: '#444' }}>
-              All-Time Sales for: {selectedProduct}
-            </h2>
+            <h2>All-Time Sales for: {selectedProduct}</h2>
           )}
 
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-            }}
-          >
+          <table>
             <thead>
-              <tr style={{ background: '#0052cc', color: 'white' }}>
-                <th style={{ padding: '12px' }}>Product</th>
-                <th style={{ padding: '12px' }}>Quantity Sold</th>
-                <th style={{ padding: '12px' }}>Total Sales</th>
+              <tr>
+                <th>Product</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales</th>
               </tr>
             </thead>
             <tbody>
               {salesReport.map((item, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
-                    textAlign: 'center',
-                  }}
-                >
-                  <td style={{ padding: '10px' }}>{item.productTitle}</td>
-                  <td style={{ padding: '10px' }}>{item.totalQuantitySold}</td>
-                  <td style={{ padding: '10px' }}>{item.totalSales.toFixed(2)} LKR</td>
+                <tr key={index}>
+                  <td>{item.productTitle}</td>
+                  <td>{item.totalQuantitySold}</td>
+                  <td>{item.totalSales.toFixed(2)} LKR</td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          {salesReport.length > 0 && (
+            <button
+              onClick={generatePDF}
+              className="btnpdf1"
+            >
+              <img src="../pdf-logo.jpeg" alt="PDF Logo" className="pdf-logo" />
+              Download PDF
+            </button>
+          )}
+
+          {/* Chart Section */}
+          <div className="chart-section" id="sales-chart">
+            <h2>Sales Chart</h2>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={salesReport}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="productTitle" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="totalQuantitySold" fill="#0052cc" name="Quantity Sold">
+                  <LabelList dataKey="totalQuantitySold" position="top" />
+                </Bar>
+                <Bar dataKey="totalSales" fill="#28a745" name="Total Sales (LKR)">
+                  <LabelList dataKey="totalSales" position="top" />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
 
       {/* No data fallback */}
       {salesReport.length === 0 && viewType !== 'products' && !error && (
-        <p style={{ textAlign: 'center' }}>
-          No sales data available {viewType === 'productSales' ? 'for this product' : 'for this date'}.
-        </p>
+        <p>No sales data available for this date.</p>
       )}
     </div>
   );

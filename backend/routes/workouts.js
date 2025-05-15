@@ -1,4 +1,6 @@
 const express = require('express');
+const router = express.Router();
+const multer = require('multer');
 const {
     createWorkout,
     getWorkouts,
@@ -6,31 +8,59 @@ const {
     updateWorkout,
     deleteWorkout,
     purchaseProduct,
-    getSalesReportByDate, 
+    getSalesReportByDate,
     getAllProducts,
-    getAllTimeSalesForProduct,
-    getWorkoutByBarcode  // Import the sales report function
+    getWorkoutByBarcode,
+    loginuser,
+    signupuser, 
+    updateuserpw, 
+    displayuser , 
+    deleteuser , 
+    displaydeletuser , 
+    addAdmin ,
+    displayadmin , 
+    deleteaccount , 
+    updateprofile,
+    updateInventory,
+    getSalesReportByProduct,
+
 } = require('../controllers/taskController');
 
-const router = express.Router();
+// Configure multer storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+//Sales report by date (manual + online)
+router.get('/salesreport/:date', getSalesReportByDate);
 
-router.get('/', getWorkouts);
-router.get('/:id', getWorkout);
-router.post('/', createWorkout);
-router.delete('/:id', deleteWorkout);
-router.put('/:id', updateWorkout);
-router.post('/:id/purchase', purchaseProduct);
-
-// Sales report route by date
-router.get('/salesreport/:date', getSalesReportByDate); // Add this line to fetch sales report
-
-// GET all product titles
+// Sales report by product title (manual + online)
+router.get('/salesreport/:date', getSalesReportByDate);
 router.get('/products', getAllProducts);
+router.get('/salesreport/product/:title', getSalesReportByProduct);
+router.get('/barcode/:barcode', getWorkoutByBarcode);
 
-// GET all-time sales of a product by title
-router.get('/salesreport/product/:title',getAllTimeSalesForProduct);
+// Your user routes
+router.get('/studentdetails', displayuser);
+router.get('/deletuserdeatiles', displaydeletuser);
 
-router.get('/workout/barcode/:barcode', getWorkoutByBarcode);
+// Authentication routes
+router.post('/login', loginuser);
+router.post('/register', signupuser);
+router.post('/forgotpassword', updateuserpw);
+router.post('/deleteuser', deleteuser);
+router.post('/deleteaccount', deleteaccount);
+router.post('/addAdmin', addAdmin);
+router.get('/displayadmin', displayadmin);
+router.post('/updateprofile', updateprofile);
+
+// Workout routes
+router.get('/', getWorkouts);
+router.get('/:id', getWorkout);   // <<<< 🛑 THIS should come LAST
+router.post('/', upload.single('image'), createWorkout);
+router.post('/:id/purchase', purchaseProduct);
+router.put('/:id', upload.single('image'), updateWorkout);
+router.delete('/:id', deleteWorkout);
 
 
+//router.put('/:id/update-quantity', updateProductQuantity);
+router.put('/products/update-quantity', updateInventory);
 module.exports = router;
