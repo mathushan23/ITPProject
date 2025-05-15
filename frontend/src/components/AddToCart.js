@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const AddToCart = () => {
-  const { cartItems, addToCart } = useCart();
+  const { cartItems, addToCart, removeFromCart } = useCart(); // ✅ include removeFromCart
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [amount, setAmount] = useState(100);
@@ -18,19 +18,18 @@ const AddToCart = () => {
   };
 
   const handleAddToCart = () => {
-    if (product.trim() === "") {
-      alert("Please enter a product name!");
+    if (product.trim() === '') {
+      alert('Please enter a product name!');
       return;
     }
 
     if (isPreOrder && !deliveryDate) {
-      alert("Please select a delivery date for pre-order items.");
+      alert('Please select a delivery date for pre-order items.');
       return;
     }
 
     const newItem = {
       id: Math.random().toString(36).substring(2),
-      _id: product._id, // must be from Task model if available
       title: product,
       price: 100,
       quantity,
@@ -55,6 +54,8 @@ const AddToCart = () => {
     <div className="container py-5">
       <h2 className="text-center mb-4">🛒 Pre-Order Electronics</h2>
 
+     
+      
 
       <div className="card shadow-sm p-4 rounded-4">
         <h5 className="mb-3">🧾 Cart Summary</h5>
@@ -63,9 +64,12 @@ const AddToCart = () => {
         ) : (
           <ul className="list-group mb-3">
             {cartItems.map((item, index) => (
-              <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                key={item.id}
+                className="list-group-item d-flex justify-content-between align-items-start flex-wrap"
+              >
                 <div>
-                  <strong>{item.title}</strong> 
+                  <strong>{item.title}</strong>
                   <span className="badge bg-secondary ms-2">{item.quantity} pcs</span>
                   {item.isPreOrder && (
                     <span className="badge bg-warning text-dark ms-2">Pre-order</span>
@@ -73,6 +77,14 @@ const AddToCart = () => {
                   {item.isPreOrder && item.deliveryDate && (
                     <div className="text-muted small">Delivery: {item.deliveryDate}</div>
                   )}
+                  <div>
+                    <button
+                      className="btn btn-sm btn-outline-danger mt-2"
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      ❌ Remove
+                    </button>
+                  </div>
                 </div>
                 <span className="text-success">{item.price * item.quantity} LKR</span>
               </li>

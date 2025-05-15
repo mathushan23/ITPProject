@@ -5,7 +5,7 @@ const router = express.Router();
 const Order = require('../models/order');
 const PDFDocument = require('pdfkit'); // or another PDF lib
 // Get all orders
-/*router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const orders = await Order.find();
     
@@ -14,7 +14,7 @@ const PDFDocument = require('pdfkit'); // or another PDF lib
     res.status(500).json({ message: err.message });
   }
 });
-*/
+
 router.get('/status/:email', async (req, res) => {
   try {
     const orders = await Order.find({ Email: req.params.email });
@@ -48,30 +48,7 @@ router.post('/checkout', async (req, res) => {
     console.log(Email)
     console.log(products)
   
-    // Basic validation
-    /*if (!customerName || !NIC || !PhoneNumber || !Address || !Email || !products || products.length === 0) {
-      return res.status(400).json({ message: 'Missing required order fields' });
-    }*/
-
-    // Check for existing order by Email
-    /* const existingOrder = await Order.findOne({ Email });
-
-    if (!existingOrder) {
-      console.log("Haru x AbellaDanger")
-    }
-    if (existingOrder) {
-      console.log("Haru x ValentinaNappi")
-      // Update products and TotalAmount
-      existingOrder.products = [...existingOrder.products, ...products];
-      existingOrder.TotalAmount += TotalAmount;
-      const update = await existingOrder.save();
-      if(update){
-        console.log("Haru x AngelaWhite")
-      }
-      return res.status(200).json({ message: 'Order updated', order: existingOrder });
-    } */
-
-    // Create a new order if none exists
+    
     const newOrder = new Order({
       customerName,
       
@@ -124,41 +101,7 @@ router.post('/', async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-/*
-router.put('/:id', async (req, res) => {
-  const { customerName, products,  image, phoneNumber, address, email, totalAmount, status } = req.body;
-  console.log('Received data:', req.body);
 
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
-    // Check if required fields are present
-   // if (!totalAmount) { // Ensure at least one product has an image
-     // return res.status(400).json({ message: 'TotalAmount is required' });
-    //}
-
-    // Update fields, ensuring all required fields are included
-    order.customerName = customerName || order.customerName;
-    order.products = products || order.products;
-    
-    order.Image = image || order.Image;  // Order image is optional
-    order.PhoneNumber = phoneNumber || order.PhoneNumber;
-    order.Address = address || order.Address;
-    order.Email = email || order.Email;
-    order.TotalAmount = totalAmount || order.TotalAmount;  // Update totalAmount
-    order.status = status || order.status;
-
-    // Save the updated order
-    const updatedOrder = await order.save();
-    res.json(updatedOrder);
-  } catch (err) {
-    console.error('Error updating order:', err);
-    res.status(400).json({ message: 'Error updating order', error: err.message });
-  }
-});
-
-*/
 router.put('/:id', async (req, res) => {
   const productsWithAmounts = (req.body.products || []).map(p => ({
     ...p,
@@ -324,6 +267,77 @@ router.get('/:id/chat', async (req, res) => {
     res.status(200).json(order.chat);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+// PUT /api/orders/:orderId/chat/:msgId - Update a message (edit or mark as read)
+// PUT /api/orders/:orderId/chat/:msgId
+// PUT /api/orders/:orderId/chat/:msgId
+router.put('/:orderId/chat/:msgId', async (req, res) => {
+  const { orderId, msgId } = req.params;
+  const { message, read } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const msg = order.chat.id(msgId); // Subdocument lookup
+    if (!msg) return res.status(404).json({ message: 'Message not found' });
+
+    if (message !== undefined) msg.message = message;
+    if (read !== undefined) msg.read = read;
+
+    await order.save();
+    res.json({ message: 'Message updated', msg });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating message', error: err.message });
+  }
+});
+
+
+// DELETE /api/orders/:orderId/chat/:msgId - Delete a specific message
+router.delete('/:orderId/chat/:msgId', async (req, res) => {
+  const { orderId, msgId } = req.params;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const originalLength = order.chat.length;
+    order.chat = order.chat.filter((msg) => msg._id.toString() !== msgId);
+
+    if (order.chat.length === originalLength) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+
+    await order.save();
+    res.json({ message: 'Message deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting message:', err.message);
+    res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+});
+// DELETE chat message
+router.delete('/:orderId/chat/:msgId', async (req, res) => {
+  const { orderId, msgId } = req.params;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const initialLength = order.chat.length;
+    order.chat = order.chat.filter(msg => msg._id.toString() !== msgId);
+
+    if (order.chat.length === initialLength) {
+      return res.status(404).json({ message: 'Chat message not found' });
+    }
+
+    await order.save();
+    res.json({ message: 'Chat message deleted successfully' });
+  } catch (err) {
+    console.error('Delete chat error:', err.message);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

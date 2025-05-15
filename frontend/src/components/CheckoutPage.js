@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -38,8 +40,8 @@ const CheckoutPage = () => {
     try {
       const response = await axios.post('http://localhost:4000/api/orders/checkout', orderData);
       clearCart();
-      if (response) {
-        alert('Order placed successfully!');
+       if (response) {
+        toast.success('✅ Order placed successfully!');
       }
     } catch (error) {
       console.error('Failed to place order:', error);

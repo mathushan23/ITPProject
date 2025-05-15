@@ -107,7 +107,7 @@ const [chatboxVisible, setChatboxVisible] = useState(false);
 
 
 
-const sendMessage = async () => {
+/*const sendMessage = async () => {
   if (!selectedOrder || !message.trim()) return;
   await axios.post(`/api/orders/${selectedOrder._id}/chat`, {
     sender: 'customer',
@@ -117,7 +117,7 @@ const sendMessage = async () => {
   const updatedOrder = await axios.get(`/api/orders/${selectedOrder._id}/chat`);
   setSelectedOrder({ ...selectedOrder, chat: updatedOrder.data });
 };
-
+*/
   
 
   const onInputChange = (e) => {
@@ -220,7 +220,7 @@ useEffect(() => {
       prevOrders.map(order => order._id === editOrderId ? response.data : order)
     );
     resetForm();
-    alert('Order updated successfully!');
+    
      toast.success('Order updated successfully!')
   } catch (error) {
     console.error('Error updating order:', error.response?.data || error.message);
@@ -550,7 +550,7 @@ const handleEditOrder = (order) => {
     <tr>
       <th>Customer</th>
       <th>Products</th>
-      <th>Image</th>
+    
       <th>Quantity</th>
       <th>Phone</th>
       <th>Address</th>
@@ -575,18 +575,7 @@ const handleEditOrder = (order) => {
         <tr key={order._id}>
           <td>{order.customerName}</td>
           {renderProductsCell(order)}
-          <td>
-            {order.image ? (
-              <img
-                src={`http://localhost:4000/uploads/${order.image}`}
-                alt="Product"
-                className="img-thumbnail"
-                style={{ width: "80px", height: "80px", objectFit: "cover" }}
-              />
-            ) : (
-              <span className="text-muted">No image</span>
-            )}
-          </td>
+        
           <td>{order.products?.reduce((sum, p) => sum + (p.quantity || 0), 0) || order.quantity}</td>
           <td>{order.PhoneNumber}</td>
           <td>{order.Address}</td>

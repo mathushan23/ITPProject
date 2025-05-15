@@ -14,11 +14,13 @@ const userSession = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : {};
 const myemail = userSession?.user?.email;
 
 const AdminOrderTable = () => {
+  const [downloadLink, setDownloadLink] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagesByCustomer, setImagesByCustomer] = useState({});
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [newQuantity, setNewQuantity] = useState(0); // Define newQuantity state
   useEffect(() => {
     fetchOrders();
@@ -156,7 +158,7 @@ const AdminOrderTable = () => {
   };
 
   
-  const generatePDFReport = async (timeframe, fromDate, toDate) => {
+/*  const generatePDFReport = async (timeframe, fromDate, toDate) => {
   try {
     const response = await axios.get(`http://localhost:4000/api/reports/order-details/${timeframe}`, {
       params: { fromDate, toDate },
@@ -172,8 +174,25 @@ const AdminOrderTable = () => {
     console.error('Error generating report:', error);
     alert('Failed to generate report PDF.');
   }
-};
+};*/
 
+
+ const downloadReport = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('http://localhost:4000/api/admin/download-report', {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url; a.download = 'Admin_Report.pdf';
+      a.click(); a.remove();
+    } catch {
+      toast.error('Failed to download report.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const fetchImages = async () => {
@@ -220,6 +239,26 @@ const AdminOrderTable = () => {
     };
   });
   
+  // ————— Search / Filter —————
+  const lower = searchTerm.toLowerCase();
+  const filteredOrders = groupedOrders.filter((o) => {
+    // customerName
+    if ((o.customerName || '').toLowerCase().includes(lower)) return true;
+    // phone as string
+    if ((o.PhoneNumber || '').toString().toLowerCase().includes(lower)) return true;
+    // address
+    if ((o.Address || '').toLowerCase().includes(lower)) return true;
+    // email
+    if ((o.Email || '').toLowerCase().includes(lower)) return true;
+    // status
+    if ((o.status || '').toLowerCase().includes(lower)) return true;
+    // created date
+    if (formatDate(o.createdAt).toLowerCase().includes(lower)) return true;
+    // products
+    if (o.items.some((it) => it.product.toLowerCase().includes(lower))) return true;
+    return false;
+  });
+  // ———————————————
   console.log(groupedOrders);
 
   const getStatusBadge = (status) => {
@@ -373,156 +412,134 @@ const updateInventory = async (order) => {
 
   if (loading) return <div className="text-center mt-5">Loading orders...</div>;
 
-  return (
+   return (
     <div className="container py-5">
       <ToastContainer />
       <h2 className="text-center mb-4">Admin Order Management</h2>
-
       {error && <div className="alert alert-danger text-center">{error}</div>}
 
-      <div className="container-fluid px-3">
-        <div className="table-responsive">
-       <div className="table-responsive shadow-sm p-3 bg-white rounded">
-  <table className="table table-bordered table-hover table-striped align-middle text-center animate__animated animate__fadeIn" style={{ fontSize: '0.95rem' }}>
-  <thead className="table-dark">
-    <tr>
-      <th>Customer</th>
-   
-      <th>Phone</th>
-      <th>Address</th>
-      <th>Email</th>
-      <th>Products</th>
-      <th>Images</th>
-      <th>Status</th>
-      <th>Created</th>
-      <th>Updated</th>
-      <th>Actions</th>
-      <th>Chat</th>
-    </tr>
-  </thead>
-  <tbody>
-    {groupedOrders.length === 0 ? (
-      <tr><td colSpan="12" className="text-center">No orders found</td></tr>
-    ) : (
-      groupedOrders.map((order) => (
-        <tr key={order._id} className="animate__animated animate__fadeInUp">
-          <td style={{ fontSize: '0.95rem' }}>{order.customerName}</td>
-        
-          <td style={{ fontSize: '0.95rem' }}>{order.PhoneNumber}</td>
-          <td style={{ fontSize: '0.95rem', whiteSpace: 'normal', wordWrap: 'break-word' }}>{order.Address}</td>
-          <td style={{ fontSize: '0.95rem' }}>{order.Email}</td>
-
-          {/* Products */}
-          <td style={{ whiteSpace: 'normal', wordWrap: 'break-word', fontSize: '0.95rem' }}>
-            <ul className="list-unstyled m-0">
-              {order.items.map((item, i) => (
-                <li key={i} className="mb-2 text-start border p-2 rounded bg-light">
-                  {item.product || 'Unnamed Product'} <span className="text-muted">(x{item.quantity})</span><br />
-                  <span className="text-muted">Amount: LKR{(item.price || 0).toFixed(2)}</span><br />
-                  <span className="text-muted">Total: LKR{((item.price || 0) * item.quantity).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-          </td>
-
-          {/* Images */}
-          <td>
-            {(imagesByCustomer[order.customerName] || []).map((img) => (
-              <img
-                key={img._id}
-                src={`http://localhost:4000/uploads/${img.image}`}
-                alt=""
-                className="img-thumbnail me-1 mb-1"
-                style={{ width: 50, height: 50, objectFit: "cover" }}
-              />
-            ))}
-          </td>
-
-          {/* Status Badge */}
-          <td>
-            <span className={getStatusBadge(order.status)}>{order.status}</span>
-          </td>
-
-          <td style={{ fontSize: '0.95rem' }}>{formatDate(order.createdAt)}</td>
-          <td style={{ fontSize: '0.95rem' }}>{formatDate(order.updatedAt)}</td>
-
-          {/* Action Buttons */}
-          <td>
-            <div className="btn-group-vertical w-100" role="group" aria-label="Order Actions">
-              <button
-                className="btn btn-outline-danger btn-sm fw-semibold py-0 px-1 shadow-sm mb-1"
-                disabled={order.status === 'Completed' || order.status === 'Canceled'}
-                onClick={() => handleCancelOrder(order._id)}
-              >
-                ❌ Cancel
-              </button>
-              <button
-                className="btn btn-outline-primary btn-sm fw-semibold py-0 px-1 shadow-sm mb-1"
-                disabled={order.status !== 'Pending'}
-                onClick={() => handleUpdateStatus(order._id, 'Shipped')}
-              >
-                🚚 Mark as Shipped
-              </button>
-              <button
-                className="btn btn-outline-success btn-sm fw-semibold py-0 px-1 shadow-sm mb-1"
-                disabled={order.status !== 'Shipped'}
-                onClick={() => handleUpdateStatus(order._id, 'Completed')}
-              >
-                ✅ Mark as Completed
-              </button>
-              <button
-                className="btn btn-outline-secondary btn-sm fw-semibold py-0 px-1 shadow-sm"
-                onClick={() => downloadPaymentSlip(order._id)}
-              >
-                📄 Download Slip
-              </button>
-            </div>
-          </td>
-
-          {/* Chat Button */}
-          <td>
-            <button
-              className="btn btn-outline-info btn-sm w-100"
-              onClick={() => setSelectedOrder(order._id === selectedOrder?._id ? null : order)}
-            >
-              {selectedOrder && selectedOrder._id === order._id ? 'Close Chat' : 'Reply'}
-            </button>
-
-            {selectedOrder && selectedOrder._id === order._id && (
-              <div className="mt-2">
-                <Chatbox
-                  selectedOrder={selectedOrder}
-                  fetchOrders={fetchOrders}
-                  userRole="admin"
-                />
-              </div>
-            )}
-          </td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-</div>
-
-           {/* Report Download Buttons */}
-    
-        </div>
-        {/* Charts Section */}
-        <div className="mt-5">
-          <canvas id="orderStatusPie" width="400" height="400"></canvas>
-          <canvas id="ordersPerCustomerBar" width="400" height="400" className="mt-5"></canvas>
-          <canvas id="orderAmountOverTime" width="400" height="400" className="mt-5"></canvas>
-        </div>
-
-        {/* Download PDF Button */}
-        <div className="mt-4 text-center">
-          <Button onClick={generatePDFReport} variant="primary">Download Report as PDF</Button>
-        </div>
+      {/* Search */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search Customer, Phone, Address, Email, Products, Status, Created…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
+
+      {/* Table */}
+      <div className="table-responsive shadow-sm p-3 bg-white rounded mb-3">
+        <table className="table table-bordered table-hover align-middle text-center">
+          <thead className="table-dark">
+            <tr>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Email</th>
+              <th>Products</th>
+              
+              <th>Status</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Actions</th>
+              <th>Chat</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.length === 0 && (
+              <tr><td colSpan="11">No orders found</td></tr>
+            )}
+            {filteredOrders.map((order) => (
+              <tr key={order._id}>
+                <td>{order.customerName}</td>
+                <td>{order.PhoneNumber}</td>
+                <td style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>{order.Address}</td>
+                <td>{order.Email}</td>
+                <td className="text-start">
+                  <ul className="list-unstyled mb-0">
+                    {order.items.map((it, i) => (
+                      <li key={i} className="mb-2 border p-2 rounded bg-light">
+                        {it.product} <small>(x{it.quantity})</small><br/>
+                        <small>Amount: LKR {(it.price || 0).toFixed(2)}</small><br/>
+                        <small>TotalAmount: LKR {(it.price || 0)*(it.quantity).toFixed(2)}</small>
+
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              
+                <td><span className={getStatusBadge(order.status)}>{order.status}</span></td>
+                <td>{formatDate(order.createdAt)}</td>
+                <td>{formatDate(order.updatedAt)}</td>
+                <td>
+                  <div className="btn-group-vertical w-100">
+                    <button
+                      className="btn btn-outline-danger btn-sm mb-1"
+                      disabled={['Completed','Canceled'].includes(order.status)}
+                      onClick={() => handleCancelOrder(order._id)}
+                    >❌ Cancel</button>
+                    <button
+                      className="btn btn-outline-primary btn-sm mb-1"
+                      disabled={order.status !== 'Pending'}
+                      onClick={() => handleUpdateStatus(order._id, 'Shipped')}
+                    >🚚 Shipped</button>
+                    <button
+                      className="btn btn-outline-success btn-sm mb-1"
+                      disabled={order.status !== 'Shipped'}
+                      onClick={() => handleUpdateStatus(order._id, 'Completed')}
+                    >✅ Complete</button>
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => downloadPaymentSlip(order._id)}
+                    >📄 Slip</button>
+                  </div>
+                </td>
+                <td>
+                  <button
+                    className="btn btn-outline-info btn-sm"
+                    onClick={() =>
+                      setSelectedOrder(
+                        selectedOrder && selectedOrder._id === order._id ? null : order
+                      )
+                    }
+                  >
+                    {selectedOrder && selectedOrder._id === order._id ? 'Close' : 'Reply'}
+                  </button>
+                  {selectedOrder && selectedOrder._id === order._id && (
+                    <div className="mt-2">
+                      <Chatbox
+                        selectedOrder={selectedOrder}
+                        fetchOrders={fetchOrders}
+                        userRole="admin"
+                      />
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Download report */}
+      <div className="d-flex justify-content-center">
+        <button className="btn btn-primary" onClick={downloadReport} disabled={loading}>
+          {loading ? 'Loading…' : 'Download PDF Report'}
+        </button>
+      </div>
+
+      {downloadLink && (
+        <div className="mt-4 text-center">
+          <a href={downloadLink} download="Admin_Report.pdf" className="btn btn-success">
+            Download report
+          </a>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default AdminOrderTable;

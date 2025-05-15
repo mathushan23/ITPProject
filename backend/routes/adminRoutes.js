@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const { isValidObjectId } = mongoose;
 // at the top of routes/adminRoutes.js
 const sendEmail = require('../utils/sendEmail');
-
+const {generateReport} = require('../controllers/adminController'); // path to your controller file
 const Order = require('../models/order');
 const Admin = require('../models/admin');
+const TaskModel = require('../models/TaskModel'); // ✅ Correct
 
 const router = express.Router();
 
@@ -75,15 +76,18 @@ router.delete('/:id', async (req, res) => {
 
 
 
-// Define the function to calculate total amount
+
+/// Update an order status and send email notification
+// Helper to calculate total
 const calculateTotalAmount = (products) => {
-  return products.reduce((totalAmount, product) => {
-    const productAmount = (product.price || 0) * (product.quantity || 0); // Price * Quantity
-    return totalAmount + productAmount; // Add the current product's amount to the total
+  return products.reduce((sum, item) => {
+    const quantity = item.quantity || 1;
+    const amount = item.Amount || 0;
+    return sum + (quantity * amount);
   }, 0);
 };
 
-// Update an order status and send email notification
+// Update order status and send email
 router.put('/:id', async (req, res) => {
   try {
     const { status } = req.body;
@@ -92,15 +96,16 @@ router.put('/:id', async (req, res) => {
     if (!status) {
       return res.status(400).json({ error: 'Status is required' });
     }
+
     if (!isValidObjectId(id)) {
       return res.status(400).json({ error: 'Invalid Order ID' });
     }
 
-    const order = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    // First, update the status
+    await Order.findByIdAndUpdate(id, { status });
+
+    // Then fetch the full order
+    const order = await Order.findById(id);
 
     if (!order) {
       return res.status(404).json({
@@ -109,31 +114,29 @@ router.put('/:id', async (req, res) => {
       });
     }
 
-    // Generate HTML table rows for products
+    const products = order.products || [];
+    const TotalAmount = calculateTotalAmount(products);
 
-    const totalAmount = calculateTotalAmount(order.products || []);
-    const productDetails = (order.products || []).map((product) => `
+    const productDetails = products.map((product) => `
       <tr>
         <td>${product.productName || 'N/A'}</td>
-        <td>${product.quantity}</td>
-        <td><img src="${product.imageUrl || ''}" alt="${product.productName || ''}" style="width: 50px; height: 50px;" /></td>
-        <td>$${product.Amount?.toFixed(2) || '0.00'}</td>
+        <td>${product.quantity || 1}</td>
+        <td>
+          ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.productName || ''}" style="width: 50px; height: 50px;" />` : 'N/A'}
+        </td>
+        <td>LKR ${product.Amount?.toFixed(2) || '0.00'}</td>
       </tr>
-     
     `).join('');
 
-    // Determine recipient email field
     const recipient = order.email || order.Email || order.customerEmail;
-    if (!recipient) {
-      console.error('PUT /api/admin/:id error: No recipient email for order', id);
-    } else {
-      // Email HTML content
+    if (recipient) {
       const emailContent = `
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2>Order Status Updated</h2>
           <p>Dear <strong>${order.customerName || 'Customer'}</strong>,</p>
           <p>Your order status has been updated to: <strong style="color: green;">${status}</strong>.</p>
           <p>Here is a summary of your order:</p>
+
           <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
             <thead>
               <tr>
@@ -147,22 +150,21 @@ router.put('/:id', async (req, res) => {
               ${productDetails}
             </tbody>
             <tfoot>
-        <tr>
-          <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-          <td><strong>$${totalAmount.toFixed(2)}</strong></td>
-        </tr>
-      </tfoot>
-          </table>
-          <tr>
+              <tr>
                 <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-                <td><strong>$${totalAmount.toFixed(2)}</strong></td>
+                <td><strong>LKR ${TotalAmount.toFixed(2)}</strong></td>
               </tr>
+            </tfoot>
+          </table>
+
           <p>If you have any questions, please contact our support team.</p>
           <p>Best regards,<br/>Your Company Team</p>
         </div>
       `;
 
       await sendEmail(recipient, `Order Status Update: ${status}`, emailContent);
+    } else {
+      console.warn('No recipient email found for order', order._id);
     }
 
     res.json({
@@ -177,5 +179,76 @@ router.put('/:id', async (req, res) => {
     });
   }
 });
+
+
+
+
+
+
+
+
+
+
+// Mock data function
+/*const getOrdersByDateRange = (fromDate, toDate) => {
+  const allOrders = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'orders.json')));
+  return allOrders.filter(order => {
+    const orderDate = new Date(order.createdAt);
+    return (!fromDate || new Date(fromDate) <= orderDate) &&
+           (!toDate || orderDate <= new Date(toDate));
+  });
+};
+
+router.get('/api/admin/order-details/:timeframe', (req, res) => {
+  const { timeframe } = req.params;
+  const { fromDate, toDate } = req.query;
+
+  if (!timeframe || !fromDate || !toDate) {
+    console.error('❌ Missing parameters:', { timeframe, fromDate, toDate });
+    return res.status(400).json({ message: 'Missing parameters' });
+  }
+
+  console.log('📊 Generating dynamic PDF report for:', { timeframe, fromDate, toDate });
+
+  try {
+    const orders = getOrdersByDateRange(fromDate, toDate);
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Order Report (${timeframe.toUpperCase()})`, 14, 20);
+    doc.setFontSize(10);
+    doc.text(`From: ${fromDate} To: ${toDate}`, 14, 28);
+
+    const tableRows = orders.map(order => [
+      order._id,
+      order.customerName,
+      order.status,
+      order.amount.toFixed(2),
+      new Date(order.createdAt).toLocaleDateString()
+    ]);
+
+    doc.autoTable({
+      startY: 35,
+      head: [['Order ID', 'Customer', 'Status', 'Amount (LKR)', 'Date']],
+      body: tableRows,
+    });
+
+    const pdfBuffer = doc.output('arraybuffer');
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="Order_Report_${timeframe}.pdf"`,
+    });
+
+    res.send(Buffer.from(pdfBuffer));
+  } catch (error) {
+    console.error('❌ Error generating PDF:', error);
+    res.status(500).json({ message: 'Failed to generate report' });
+  }
+});*/
+// Route to download admin report PDF
+// Add this route
+router.get('/download-report', generateReport);
+
 
 module.exports = router;

@@ -51,7 +51,6 @@ const EditOrderForm = ({
                 <thead>
                   <tr>
                     <th>Product</th>
-                    <th>Image</th>
                     <th>Quantity</th>
                     <th>Price (LKR)</th>
                     <th>Subtotal (LKR)</th>
@@ -68,19 +67,7 @@ const EditOrderForm = ({
                     return (
                       <tr key={index}>
                         <td>{productName || <span className="text-muted">Unnamed Product</span>}</td>
-                        <td>
-                          {item.image ? (
-                            <Image
-                              src={`http://localhost:4000/uploads/${item.image}`}
-                              thumbnail
-                              width={50}
-                              height={50}
-                              alt={productName || `Product ${index + 1}`}
-                            />
-                          ) : (
-                            <span className="text-muted">No image</span>
-                          )}
-                        </td>
+
                         <td>{quantity}</td> {/* Display quantity statically */}
                         <td>{price.toFixed(2)}</td> {/* Display price statically */}
                         <td>LKR {subtotal.toFixed(2)}</td>
