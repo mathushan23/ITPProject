@@ -5,7 +5,7 @@ const router = express.Router();
 const Order = require('../models/order');
 const PDFDocument = require('pdfkit'); // or another PDF lib
 // Get all orders
-router.get('/', async (req, res) => {
+/*router.get('/', async (req, res) => {
   try {
     const orders = await Order.find();
     
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+});*/
 
 router.get('/status/:email', async (req, res) => {
   try {

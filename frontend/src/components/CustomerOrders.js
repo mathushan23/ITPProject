@@ -90,7 +90,7 @@ const [chatboxVisible, setChatboxVisible] = useState(false);
   }, [location.state]);
   
 
-  useEffect(() => {
+ /* useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -103,7 +103,7 @@ const [chatboxVisible, setChatboxVisible] = useState(false);
       }
     };
     fetchData();
-  }, []);
+  }, []);*/
 
 
 
