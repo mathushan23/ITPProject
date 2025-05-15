@@ -17,7 +17,7 @@ const Profile = () => {
   function deleteaccount(myemail) {
     const confirmDelete = window.confirm("Are you sure you want to delete Your Account ?");
     if (confirmDelete) {
-      axios.post("http://localhost:3000/deleteaccount", { myemail })
+      axios.post("http://localhost:3000/api/workouts/deleteaccount", { myemail })
         .then((result) => {
           console.log("Response from server:", result);
           if (result.data.message === "UserDeleted") {
@@ -161,7 +161,6 @@ const Profile = () => {
 
       <button className="edit-btn" onClick={() => navigate('/updateprofile')}><b>Edit Profile</b></button>
       <button className="delete-btn" onClick={() => deleteaccount(myemail)}><b>Delete Account</b></button>
-      <button className="password-btn"><b>Change Password</b></button>
     </div>
   </div>
 </>
